@@ -1,11 +1,12 @@
-import '../repositories/person_repository.dart';
+import 'package:kpp_app/feature/domain/entities/person.dart';
+import 'package:kpp_app/feature/data/repositories/person_repository_impl.dart';
 
 class CheckNumberUseCase {
-  final PersonRepository repository;
+  final PersonRepositoryImpl repository;
 
   CheckNumberUseCase(this.repository);
 
-  Future<bool> call(String number) {
-    return repository.checkNumberExists(number);
+  Future<Person?> call(String number) async {
+    return await repository.getPersonByNumber(number);
   }
 }

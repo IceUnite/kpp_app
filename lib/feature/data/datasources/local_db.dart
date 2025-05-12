@@ -1,29 +1,78 @@
 import 'dart:io';
-import 'package:flutter/services.dart';
-import 'package:path/path.dart';
+
 import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class LocalDb {
   static Database? _database;
 
-  static Future<Database> get database async {
+  Future<void> printAllPersons() async {
+    final db = await LocalDb().database;
+    final persons = await db.query('persons');
+
+    print('=== Содержимое таблицы persons ===');
+    for (var row in persons) {
+      print(row);
+    }
+    print('=== Конец таблицы ===');
+  }
+
+  Future<void> deleteOldDb() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final path = join(dir.path, 'database.db');
+
+    final file = File(path);
+    if (await file.exists()) {
+      await file.delete();
+      print('❌ Старая база данных удалена.');
+    }
+  }
+
+  // Метод для получения или создания базы данных
+  Future<Database> get database async {
     if (_database != null) return _database!;
+
+    // Если база данных еще не существует, создаем новую
     _database = await _initDb();
     return _database!;
   }
 
-  static Future<Database> _initDb() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'empty_database.db');
+  // Метод для инициализации базы данных
+  Future<Database> _initDb() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = join(directory.path, 'database.db');
 
-    // Копируем базу из assets, если её ещё нет
-    if (!await File(path).exists()) {
-      print('Копируем базу данных из assets...');
-      final data = await rootBundle.load('assets/datasource/empty_database.db');
-      final bytes = data.buffer.asUint8List();
-      await File(path).writeAsBytes(bytes, flush: true);
+    return await openDatabase(path);
+  }
+
+  // Метод для закрытия базы данных
+  Future<void> close() async {
+    final db = await database;
+    db.close();
+  }
+
+  Future<void> printDatabaseContent() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final dbPath = join(directory.path, 'database.db');
+
+    final db = await openDatabase(dbPath);
+    final List<Map<String, dynamic>> result = await db.query('persons');
+    print('=== Содержимое таблицы persons ===');
+    for (var row in result) {
+      print(row); // Выводим каждую строку из таблицы
     }
+    print('=== Конец таблицы ===');
+  }
 
-    return openDatabase(path);
+  Future<void> checkDatabaseTables() async {
+    final db = await database;
+
+    // Пример проверки существования таблицы
+    final result = await db.rawQuery('SELECT name FROM sqlite_master WHERE type="table"');
+    print('Существующие таблицы:');
+    for (var table in result) {
+      print(table);
+    }
   }
 }

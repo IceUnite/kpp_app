@@ -1,15 +1,41 @@
-import '../datasources/local_db.dart';
-import '../../domain/repositories/person_repository.dart';
+import 'package:kpp_app/feature/domain/entities/person.dart';
 
-class PersonRepositoryImpl implements PersonRepository {
-  @override
-  Future<bool> checkNumberExists(String number) async {
-    final db = await LocalDb.database;
-    final result = await db.query(
-      'table_name',
+
+import '../datasources/local_db.dart';
+
+class PersonRepositoryImpl {
+  final LocalDb db;
+
+  PersonRepositoryImpl(this.db);
+
+  Future<Person?> getPersonByNumber(String number) async {
+    final database = await db.database;
+
+    // ЛОГИ ВСЕХ НОМЕРОВ
+    final all = await database.query('persons');
+    for (final row in all) {
+      print('Номер в БД: ${row['number']}');
+    }
+
+    final List<Map<String, dynamic>> result = await database.query(
+      'persons',
       where: 'number = ?',
       whereArgs: [number],
     );
-    return result.isNotEmpty;
+
+    if (result.isNotEmpty) {
+      final person = result.first;
+      return Person(
+        id: person['id'],
+        surname: person['surname'],
+        name: person['name'],
+        lastname: person['lastname'],
+        number: person['number'],
+      );
+    }
+
+    print('Номер не найден: $number');
+    return null;
   }
+
 }
