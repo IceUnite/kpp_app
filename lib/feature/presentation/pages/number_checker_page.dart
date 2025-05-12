@@ -1,93 +1,111 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/entities/person.dart';
+import '../../../core/theme/app_button_styles.dart';
+import '../../../core/theme/app_textfield_styles.dart';
 import '../bloc/number_checker_cubit.dart';
+import '../../domain/entities/person.dart';
 
-class NumberCheckerPage extends StatelessWidget {
-  final TextEditingController controller = TextEditingController();
+class NumberCheckerPage extends StatefulWidget {
+  @override
+  _NumberCheckerPageState createState() => _NumberCheckerPageState();
+}
 
-  NumberCheckerPage({super.key});
+class _NumberCheckerPageState extends State<NumberCheckerPage> {
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Проверка номера')),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: BlocBuilder<NumberCheckerCubit, NumberCheckerState>(
-          builder: (context, state) {
-            Icon? suffixIcon;
-            Widget resultWidget = const SizedBox.shrink();
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: AppTextFieldStyles.defaultDecoration(hintText: 'Введите номер'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              style: AppButtonStyles.outlined,
+              onPressed: () {
+                final number = _controller.text.trim();
+                if (number.isNotEmpty) {
+                  context.read<NumberCheckerCubit>().checkNumber(number);
+                }
+              },
+              child: const Text('Проверить'),
+            ),
 
-            if (state is NumberExists) {
-              suffixIcon = const Icon(Icons.check_circle, color: Colors.green);
-              resultWidget = Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _userInfoCard(
-                    context,
-                    state.person,
-                  ),
-                ],
-              );
-            } else if (state is NumberNotExists) {
-              suffixIcon = const Icon(Icons.cancel, color: Colors.red);
-              resultWidget = const Text(
-                'Номер не найден в базе данных.',
-                style: TextStyle(color: Colors.red, fontSize: 16),
-              );
-            } else if (state is NumberCheckerLoading) {
-              suffixIcon = const Icon(Icons.hourglass_top, color: Colors.orange);
-              resultWidget = const Center(child: CircularProgressIndicator());
-            }
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Введите номер для проверки:',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: controller,
-                  decoration: InputDecoration(
-                    labelText: 'Номер',
-                    suffixIcon: suffixIcon,
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    if (value.isEmpty) {
-                      context.read<NumberCheckerCubit>().reset();
-                    } else {
-                      context.read<NumberCheckerCubit>().checkNumber(value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 24),
-                resultWidget,
-              ],
-            );
-          },
+            const SizedBox(height: 24),
+            BlocBuilder<NumberCheckerCubit, NumberCheckerState>(
+              builder: (context, state) {
+                if (state is NumberCheckerLoading) {
+                  return const CircularProgressIndicator();
+                } else if (state is NumberExists) {
+                  return _buildResultCard(state.person);
+                } else if (state is NumberNotExists) {
+                  return _buildResultCard(null);
+                }
+                return const SizedBox.shrink();
+              },
+            )
+          ],
         ),
       ),
     );
   }
 
-  Widget _userInfoCard(BuildContext context, Person person) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Фамилия: ${person.surname}', style: Theme.of(context).textTheme.bodyLarge),
-            Text('Имя: ${person.name}', style: Theme.of(context).textTheme.bodyLarge),
-            Text('Отчество: ${person.lastname}', style: Theme.of(context).textTheme.bodyLarge),
-            Text('Номер: ${person.number}', style: Theme.of(context).textTheme.bodyLarge),
-          ],
+  Widget _buildResultCard(Person? person) {
+    final bool found = person != null;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: found ? Colors.green.shade50 : Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: found ? Colors.green : Colors.red,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: found
+          ? Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '✅ Пользователь найден!',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.green.shade800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text('Фамилия: ${person.surname}'),
+          Text('Имя: ${person.name}'),
+          Text('Отчество: ${person.lastname}'),
+          Text('Номер: ${person.number}'),
+        ],
+      )
+          : Text(
+        '❌ Пользователь не найден.',
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.red.shade800,
         ),
       ),
     );
