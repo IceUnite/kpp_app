@@ -1,16 +1,45 @@
-# kpp_app
+🚧 KPP App – Пропускной Контроль 🚪
 
-A new Flutter project.
+Добро пожаловать в KPP App — Flutter-приложение для офлайн-проверки пропусков сотрудников по номеру телефона с использованием встроенной базы данных SQLite.
+📱 Простой, быстрый и надежный способ организовать локальный доступ к информации ⚡
 
-## Getting Started
+📸 Скриншот интерфейса
 
-This project is a starting point for a Flutter application.
+<img src="asstes/screenshots/screenshot.png" alt="Скриншот приложения" width="300"/>
+🧩 Основной функционал
 
-A few resources to get you started if this is your first Flutter project:
+✅ Поиск сотрудника по номеру телефона
+✅ Отображение ФИО и другой информации
+✅ Полная автономность: работает без подключения к интернету
+✅ Встроенная база данных SQLite через assets
+✅ Современный UI с поддержкой Material 3
+✅ Управление состоянием через Cubit и flutter_bloc
+🛠️ Используемые технологии
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Технология	Назначение
+🐦 Flutter	Кроссплатформенная разработка
+💾 sqflite	Работа с SQLite базой данных
+📁 path_provider	Доступ к директориям устройства
+📦 flutter_bloc	Управление состоянием через Cubit
+🧠 Equatable	Упрощённое сравнение состояний
+🎨 Material 3	Современные UI-компоненты и визуальный стиль
+🧱 Архитектура проекта
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Проект реализован по принципам Чистой Архитектуры (Clean Architecture), включающей следующие слои:
+
+📁 data — источники данных и модели (SQLite, репозитории)
+🧠 domain — бизнес-логика и use case'ы
+🎛️ presentation — UI и управление состоянием через Cubit
+🧪 Тестируемость и расширяемость благодаря разделению ответственности
+Такой подход делает проект легко сопровождаемым, масштабируемым и гибким для будущих изменений 💡
+
+🚀 Запуск проекта
+
+Клонируйте репозиторий:
+git clone https://github.com/your-username/kpp_app.git
+cd kpp_app
+Установите зависимости:
+flutter pub get
+Убедитесь, что вы подключили assets/empty_database.db в pubspec.yaml.
+Запустите проект:
+flutter run
