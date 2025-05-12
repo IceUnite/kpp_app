@@ -23,4 +23,6 @@ flutter:
   uses-material-design: true
 
   assets:
+#    - assets/
+#    - assets/datasource/
     - assets/datasource/empty_database.db
