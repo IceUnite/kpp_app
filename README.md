@@ -5,7 +5,7 @@
 
 📸 Скриншот интерфейса
 
-<img src="asstes/screenshots/screenshot.png" alt="Скриншот приложения" width="300"/>
+<img src="assets/screenshots/screenshot.png" alt="Скриншот приложения" width="300"/>
 🧩 Основной функционал
 
 ✅ Поиск сотрудника по номеру телефона
