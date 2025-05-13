@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 
@@ -16,14 +17,15 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
   late Timer _timer;
   late DateTime _now;
 
-  // Поля для ввода номера и фокус
-  List<TextEditingController> _controllers = List.generate(8, (index) => TextEditingController());
-  List<FocusNode> _focusNodes = List.generate(8, (index) => FocusNode());
+  bool _isCivil = true;
+  List<TextEditingController> _controllers = [];
+  List<FocusNode> _focusNodes = [];
 
   @override
   void initState() {
     super.initState();
     _now = DateTime.now();
+    _initializeFields();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
         _now = DateTime.now();
@@ -31,11 +33,19 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
     });
   }
 
+  void _initializeFields() {
+    final length = 9; // и гражданский, и военный — 9 символов
+    _controllers.forEach((c) => c.dispose());
+    _focusNodes.forEach((f) => f.dispose());
+    _controllers = List.generate(length, (_) => TextEditingController());
+    _focusNodes = List.generate(length, (_) => FocusNode());
+  }
+
   @override
   void dispose() {
     _timer.cancel();
-    _controllers.forEach((controller) => controller.dispose()); // Освобождаем контроллеры
-    _focusNodes.forEach((focusNode) => focusNode.dispose()); // Освобождаем FocusNodes
+    _controllers.forEach((controller) => controller.dispose());
+    _focusNodes.forEach((focusNode) => focusNode.dispose());
     super.dispose();
   }
 
@@ -45,52 +55,53 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
       backgroundColor: Colors.white,
       body: Row(
         children: [
-          // Левый сайдбар
           const LeftSidebar(),
-
-          // Основной контент
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Регистрационный знак транспортного средства',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                  Container(
+                    height: 82,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: const Color(0xFF00312C), borderRadius: BorderRadius.circular(12)),
+                    child: const Center(
+                      child: Text(
+                        'Регистрационный знак транспортного средства',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // Типы РЗ
                   Row(
                     children: [
-                      _buildRZButton('Гражданские РЗ', true),
+                      _buildRZButton('Гражданские РЗ', _isCivil, () {
+                        setState(() {
+                          _isCivil = true;
+                          _initializeFields();
+                        });
+                      }),
                       const SizedBox(width: 8),
-                      _buildRZButton('Военные РЗ', false),
+                      _buildRZButton('Военные РЗ', !_isCivil, () {
+                        setState(() {
+                          _isCivil = false;
+                          _initializeFields();
+                        });
+                      }),
                     ],
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Поля ввода по символам
                   Row(
-                    children: List.generate(8, (index) {
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: List.generate(_controllers.length, (index) {
                       return _buildTextField(index);
                     }),
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Кнопка "Проверить"
                   BlocConsumer<NumberCheckerCubit, NumberCheckerState>(
                     listener: (context, state) {
-                      // Отображаем результат в зависимости от состояния
                       if (state is NumberExists) {
-                        // Например, показываем диалоговое окно или сообщение
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -126,18 +137,14 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       }
                       return ElevatedButton(
                         onPressed: () {
-                          // Собираем номер из всех полей
-                          final number = _controllers.map((controller) => controller.text).join('');
+                          final number = _controllers.map((c) => c.text).join('');
                           context.read<NumberCheckerCubit>().checkNumber(number);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
                         child: const Text('Проверить'),
                       );
@@ -152,53 +159,74 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
     );
   }
 
-  Widget _buildRZButton(String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF00312C) : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.black26),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? Colors.white : Colors.black,
+  Widget _buildRZButton(String label, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF00312C) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.black26),
         ),
+        child: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.black)),
       ),
     );
   }
 
   Widget _buildTextField(int index) {
+    final isLetter = _isCivil
+        ? [0, 4, 5].contains(index)
+        : [4, 5].contains(index);
+
+    final double fieldHeight = isLetter ? 60.0 : 80.0;
+
     return Container(
       margin: const EdgeInsets.only(right: 8),
       width: 48,
-      height: 56,
+      height: fieldHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.black26),
       ),
-      child: TextField(
-        controller: _controllers[index],
-        focusNode: _focusNodes[index],
-        textAlign: TextAlign.center,
-        maxLength: 1,
-        onChanged: (text) {
-          // Переходим к следующему полю при вводе текста
-          if (text.isNotEmpty && index < 7) {
-            FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
-          }
-          // Переходим к предыдущему полю при удалении текста
-          if (text.isEmpty && index > 0) {
+      child: Focus(
+        onKey: (FocusNode node, RawKeyEvent event) {
+          if (event is RawKeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.backspace &&
+              _controllers[index].text.isEmpty &&
+              index > 0) {
+            _controllers[index - 1].clear();
             FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+            return KeyEventResult.handled;
           }
+          return KeyEventResult.ignored;
         },
-        decoration: const InputDecoration(
-          counterText: '',
-          border: InputBorder.none,
+        child: TextField(
+          controller: _controllers[index],
+          focusNode: _focusNodes[index],
+          textAlign: TextAlign.center,
+          maxLength: 1,
+          textCapitalization: TextCapitalization.characters,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(1),
+            FilteringTextInputFormatter.allow(
+              RegExp(isLetter ? r'[А-Яа-яA-Za-z]' : r'[0-9]'),
+            ),
+          ],
+          onChanged: (text) {
+            if (text.isNotEmpty && index < _focusNodes.length - 1) {
+              FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+            }
+          },
+          decoration: const InputDecoration(
+            counterText: '',
+            border: InputBorder.none,
+          ),
+          style: const TextStyle(fontSize: 24),
         ),
       ),
     );
   }
+
 }

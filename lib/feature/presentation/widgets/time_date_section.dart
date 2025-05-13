@@ -80,8 +80,9 @@ class _TimeAndDateSectionState extends State<TimeAndDateSection> {
           Text(
             _time,
             style: const TextStyle(
-              fontSize: 32,
+              fontSize: 50,
               fontWeight: FontWeight.bold,
+              color: Color(0xFF003735),
             ),
           ),
           const SizedBox(height: 8),

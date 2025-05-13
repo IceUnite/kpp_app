@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../core/resources/pictures_path.dart';
 
 class LogoSection extends StatelessWidget {
@@ -13,31 +12,33 @@ class LogoSection extends StatelessWidget {
         color: const Color(0xFF00312C),
         borderRadius: BorderRadius.circular(12),
       ),
-      child:Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Image.asset(PicturesPaths.logo),
-          VerticalDivider(
+
+          // Вертикальный разделитель
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             width: 1,
-            thickness: 1,
+            height: 60,
             color: Colors.white,
-            indent: 5,
-            endIndent: 5,
           ),
-          Text(
+
+          // Текст
+          const Text(
             'Дежурная \nслужба',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold, // Жирный шрифт
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
             softWrap: true,
             overflow: TextOverflow.visible,
             textAlign: TextAlign.start,
-          )
+          ),
         ],
       ),
-
     );
   }
 }

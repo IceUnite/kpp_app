@@ -38,7 +38,7 @@ class _LeftSidebarState extends State<LeftSidebar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 280,
+      width: 320,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
