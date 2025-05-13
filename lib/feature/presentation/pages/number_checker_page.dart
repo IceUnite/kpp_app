@@ -61,12 +61,12 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
           const LeftSidebar(),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    height: 82,
+                    height: 100,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: const Color(0xFF00312C),
