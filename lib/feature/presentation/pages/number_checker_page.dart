@@ -14,8 +14,7 @@ class NumberCheckerPage extends StatefulWidget {
 }
 
 class _NumberCheckerPageState extends State<NumberCheckerPage> {
-  late Timer _timer;
-  late DateTime _now;
+
 
   bool _isCivil = true;
 
@@ -28,12 +27,6 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
   @override
   void initState() {
     super.initState();
-    _now = DateTime.now();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() {
-        _now = DateTime.now();
-      });
-    });
 
     _mainController.addListener(() {
       if (_mainController.text.length == 6) {
@@ -44,7 +37,6 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
 
   @override
   void dispose() {
-    _timer.cancel();
     _mainController.dispose();
     _regionController.dispose();
     _mainFocus.dispose();
@@ -112,7 +104,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                     children: [
                       Expanded(child: _buildMainField()),
                       const SizedBox(width: 16),
-                      SizedBox(width: 80, child: _buildRegionField()),
+                      SizedBox(width: 180, child: _buildRegionField()),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -123,7 +115,19 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                           context: context,
                           builder: (_) => AlertDialog(
                             title: const Text('Номер найден'),
-                            content: Text('Персона: ${state.person.name}'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (state.person.surname != null) Text('Фамилия: ${state.person.surname}'),
+                                if (state.person.name != null) Text('Имя: ${state.person.name}'),
+                                if (state.person.lastname != null) Text('Отчество: ${state.person.lastname}'),
+                                if (state.person.number != null) Text('Номер: ${state.person.number}'),
+                                if (state.person.status != null) Text('Статус: ${state.person.status}'),
+                                if (state.person.timeIn != null) Text('Время входа: ${state.person.timeIn}'),
+                                if (state.person.timeOut != null) Text('Время выхода: ${state.person.timeOut}'),
+                              ],
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(),
@@ -143,9 +147,28 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       }
                     },
                     builder: (context, state) {
+                      // Если в состоянии загрузки, показываем индикатор
                       if (state is NumberCheckerLoading) {
-                        return const CircularProgressIndicator();
+                        return ElevatedButton(
+                          onPressed: null,  // Блокируем кнопку во время загрузки
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: const SizedBox(
+                            width: 24,  // Размер индикатора
+                            height: 24, // Размер индикатора
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              strokeWidth: 3, // Толщина индикатора
+                            ),
+                          ),
+                        );
                       }
+
+                      // В обычном состоянии показываем текст "Проверить"
                       return ElevatedButton(
                         onPressed: () {
                           final main = _mainController.text.toUpperCase();
@@ -169,6 +192,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       );
                     },
                   ),
+
                 ],
               ),
             ),

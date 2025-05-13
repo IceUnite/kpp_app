@@ -1,12 +1,21 @@
-import 'package:kpp_app/feature/domain/entities/person.dart';
-import 'package:kpp_app/feature/data/repositories/person_repository_impl.dart';
+import 'package:injectable/injectable.dart';
 
-class CheckNumberUseCase {
-  final PersonRepositoryImpl repository;
+import '../entities/person.dart';
+import '../repositories/car_repository.dart';
 
-  CheckNumberUseCase(this.repository);
+@injectable
+class GetCarByPlateUseCase {
+  final CarRepository _carRepository;
 
-  Future<Person?> call(String number) async {
-    return await repository.getPersonByNumber(number);
+  GetCarByPlateUseCase(this._carRepository);
+
+  Future<Person> execute(String plateNumber) async {
+    try {
+      final personModel = await _carRepository.getCarByPlate(plateNumber);
+
+      return personModel.toEntity();
+    } catch (e) {
+      throw Exception('Error while getting car data: $e');
+    }
   }
 }

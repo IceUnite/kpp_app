@@ -1,33 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/date_symbol_data_local.dart'; // <--- обязательно!
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'core/internal/di/sl.dart';
 import 'feature/presentation/bloc/number_checker_cubit.dart';
 import 'feature/presentation/pages/number_checker_page.dart';
-import 'feature/domain/usecases/check_number_usecase.dart';
-import 'feature/data/repositories/person_repository_impl.dart';
-import 'feature/data/datasources/local_db.dart';
-import 'helpers/database_helper.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  final localDb = LocalDb();
-  final repository = PersonRepositoryImpl(localDb);
-  await LocalDb().deleteOldDb(); // Удаляем старую базу данных
-  await copyDatabaseFromAssets(); // Копируем новую
-  await LocalDb().checkDatabaseTables();  // Проверяем, есть ли таблицы
-  await LocalDb().printDatabaseContent();  // Печатаем таблицы
   await initializeDateFormatting('ru', null);
-
-  final useCase = CheckNumberUseCase(repository);
-  runApp(MyApp(useCase: useCase));
+  configureDependencies();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final CheckNumberUseCase useCase;
-
-  const MyApp({Key? key, required this.useCase}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +31,10 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       home: BlocProvider(
-        create: (_) => NumberCheckerCubit(useCase),
+        create: (context) => getIt<NumberCheckerCubit>(),
         child: const NumberCheckerPage(),
       ),
     );
   }
 }
+

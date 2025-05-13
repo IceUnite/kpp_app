@@ -20,8 +20,7 @@ void configureDependencies() => $initGetIt(getIt);
 const int successCode = 204;
 
 Completer<bool>? setupCompleter;
-// final StreamController<RefreshTokenResult> _refreshTokenStreamController =
-// StreamController<RefreshTokenResult>.broadcast();
+
 
 Completer<bool>? refreshCompleter;
 
@@ -29,8 +28,6 @@ Completer<bool>? refreshCompleter;
 abstract class RegisterModule {
 
   @lazySingleton
-
-
   @lazySingleton
   Dio get dio {
     setupCompleter = Completer<bool>();
