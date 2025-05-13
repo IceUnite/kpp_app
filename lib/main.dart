@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/date_symbol_data_local.dart'; // <--- обязательно!
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'feature/presentation/bloc/number_checker_cubit.dart';
 import 'feature/presentation/pages/number_checker_page.dart';
 import 'feature/domain/usecases/check_number_usecase.dart';
@@ -15,7 +17,9 @@ void main() async {
   await LocalDb().deleteOldDb(); // Удаляем старую базу данных
   await copyDatabaseFromAssets(); // Копируем новую
   await LocalDb().checkDatabaseTables();  // Проверяем, есть ли таблицы
-  await LocalDb().printDatabaseContent();  // Проверяем, есть ли таблицы
+  await LocalDb().printDatabaseContent();  // Печатаем таблицы
+  await initializeDateFormatting('ru', null);
+
   final useCase = CheckNumberUseCase(repository);
   runApp(MyApp(useCase: useCase));
 }
@@ -30,9 +34,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'KPP App',
       theme: ThemeData(primarySwatch: Colors.blue),
+      supportedLocales: const [
+        Locale('ru'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: BlocProvider(
         create: (_) => NumberCheckerCubit(useCase),
-        child: NumberCheckerPage(),
+        child: const NumberCheckerPage(),
       ),
     );
   }
