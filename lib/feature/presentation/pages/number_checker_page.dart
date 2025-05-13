@@ -18,36 +18,47 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
   late DateTime _now;
 
   bool _isCivil = true;
-  List<TextEditingController> _controllers = [];
-  List<FocusNode> _focusNodes = [];
+
+  final _mainController = TextEditingController();
+  final _regionController = TextEditingController();
+
+  final _mainFocus = FocusNode();
+  final _regionFocus = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _now = DateTime.now();
-    _initializeFields();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
         _now = DateTime.now();
       });
     });
-  }
 
-  void _initializeFields() {
-    final length = 9; // и гражданский, и военный — 9 символов
-    _controllers.forEach((c) => c.dispose());
-    _focusNodes.forEach((f) => f.dispose());
-    _controllers = List.generate(length, (_) => TextEditingController());
-    _focusNodes = List.generate(length, (_) => FocusNode());
+    _mainController.addListener(() {
+      if (_mainController.text.length == 6) {
+        FocusScope.of(context).requestFocus(_regionFocus);
+      }
+    });
   }
 
   @override
   void dispose() {
     _timer.cancel();
-    _controllers.forEach((controller) => controller.dispose());
-    _focusNodes.forEach((focusNode) => focusNode.dispose());
+    _mainController.dispose();
+    _regionController.dispose();
+    _mainFocus.dispose();
+    _regionFocus.dispose();
     super.dispose();
   }
+
+  bool _validateMain(String value) {
+    final civilPattern = RegExp(r'^[А-Я]{2}[0-9]{3}[А-Я]{1}$');
+    final militaryPattern = RegExp(r'^[0-9]{4}[А-Я]{2}$');
+    return _isCivil ? civilPattern.hasMatch(value) : militaryPattern.hasMatch(value);
+  }
+
+  bool _validateRegion(String value) => RegExp(r'^\d{3}$').hasMatch(value);
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +76,10 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                   Container(
                     height: 82,
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: const Color(0xFF00312C), borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00312C),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: const Center(
                       child: Text(
                         'Регистрационный знак транспортного средства',
@@ -79,55 +93,52 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       _buildRZButton('Гражданские РЗ', _isCivil, () {
                         setState(() {
                           _isCivil = true;
-                          _initializeFields();
+                          _mainController.clear();
+                          _regionController.clear();
                         });
                       }),
                       const SizedBox(width: 8),
                       _buildRZButton('Военные РЗ', !_isCivil, () {
                         setState(() {
                           _isCivil = false;
-                          _initializeFields();
+                          _mainController.clear();
+                          _regionController.clear();
                         });
                       }),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: List.generate(_controllers.length, (index) {
-                      return _buildTextField(index);
-                    }),
+                    children: [
+                      Expanded(child: _buildMainField()),
+                      const SizedBox(width: 16),
+                      SizedBox(width: 80, child: _buildRegionField()),
+                    ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   BlocConsumer<NumberCheckerCubit, NumberCheckerState>(
                     listener: (context, state) {
                       if (state is NumberExists) {
                         showDialog(
                           context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Номер найден'),
-                              content: Text('Персона: ${state.person.name}'),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('Закрыть'),
-                                ),
-                              ],
-                            );
-                          },
+                          builder: (_) => AlertDialog(
+                            title: const Text('Номер найден'),
+                            content: Text('Персона: ${state.person.name}'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Закрыть'),
+                              ),
+                            ],
+                          ),
                         );
                       } else if (state is NumberNotExists) {
                         showDialog(
                           context: context,
-                          builder: (BuildContext context) {
-                            return const AlertDialog(
-                              title: Text('Номер не найден'),
-                              content: Text('Такого номера не существует.'),
-                            );
-                          },
+                          builder: (_) => const AlertDialog(
+                            title: Text('Номер не найден'),
+                            content: Text('Такого номера не существует.'),
+                          ),
                         );
                       }
                     },
@@ -137,8 +148,16 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       }
                       return ElevatedButton(
                         onPressed: () {
-                          final number = _controllers.map((c) => c.text).join('');
-                          context.read<NumberCheckerCubit>().checkNumber(number);
+                          final main = _mainController.text.toUpperCase();
+                          final region = _regionController.text;
+                          if (_validateMain(main) && _validateRegion(region)) {
+                            final fullNumber = main + region;
+                            context.read<NumberCheckerCubit>().checkNumber(fullNumber);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Неверный формат номера')),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
@@ -174,59 +193,85 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
     );
   }
 
-  Widget _buildTextField(int index) {
-    final isLetter = _isCivil
-        ? [0, 4, 5].contains(index)
-        : [4, 5].contains(index);
-
-    final double fieldHeight = isLetter ? 60.0 : 80.0;
-
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      width: 48,
-      height: fieldHeight,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.black26),
-      ),
-      child: Focus(
-        onKey: (FocusNode node, RawKeyEvent event) {
-          if (event is RawKeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.backspace &&
-              _controllers[index].text.isEmpty &&
-              index > 0) {
-            _controllers[index - 1].clear();
-            FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
-            return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
-        },
-        child: TextField(
-          controller: _controllers[index],
-          focusNode: _focusNodes[index],
-          textAlign: TextAlign.center,
-          maxLength: 1,
-          textCapitalization: TextCapitalization.characters,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(1),
-            FilteringTextInputFormatter.allow(
-              RegExp(isLetter ? r'[А-Яа-яA-Za-z]' : r'[0-9]'),
-            ),
-          ],
-          onChanged: (text) {
-            if (text.isNotEmpty && index < _focusNodes.length - 1) {
-              FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
-            }
-          },
-          decoration: const InputDecoration(
-            counterText: '',
-            border: InputBorder.none,
-          ),
-          style: const TextStyle(fontSize: 24),
-        ),
+  Widget _buildMainField() {
+    return TextField(
+      controller: _mainController,
+      focusNode: _mainFocus,
+      maxLength: 6,
+      textCapitalization: TextCapitalization.characters,
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(6),
+        UpperCaseTextFormatter(),
+        PlateMaskFormatter(isCivil: _isCivil),
+      ],
+      decoration: const InputDecoration(
+        labelText: 'Основной номер',
+        border: OutlineInputBorder(),
+        counterText: '',
       ),
     );
   }
 
+  Widget _buildRegionField() {
+    return TextField(
+      controller: _regionController,
+      focusNode: _regionFocus,
+      maxLength: 3,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(3),
+        FilteringTextInputFormatter.digitsOnly,
+      ],
+      decoration: const InputDecoration(
+        labelText: 'Регион',
+        border: OutlineInputBorder(),
+        counterText: '',
+      ),
+    );
+  }
+}
+
+/// Верхний регистр
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    return newValue.copyWith(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
+/// Маска по позициям
+class PlateMaskFormatter extends TextInputFormatter {
+  final bool isCivil;
+  PlateMaskFormatter({required this.isCivil});
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String newText = newValue.text.toUpperCase();
+    if (newText.length > 6) return oldValue;
+
+    for (int i = 0; i < newText.length; i++) {
+      final char = newText[i];
+      final isLetter = RegExp(r'[А-Я]').hasMatch(char);
+      final isDigit = RegExp(r'[0-9]').hasMatch(char);
+
+      bool valid = false;
+      if (isCivil) {
+        // АА111А
+        valid = (i < 2 && isLetter) || (i >= 2 && i <= 4 && isDigit) || (i == 5 && isLetter);
+      } else {
+        // 1111АА
+        valid = (i < 4 && isDigit) || (i >= 4 && isLetter);
+      }
+
+      if (!valid) return oldValue;
+    }
+
+    return newValue.copyWith(
+      text: newText,
+      selection: newValue.selection,
+    );
+  }
 }
