@@ -29,7 +29,7 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
   }
 
   Future<void> admitCar(int carId) async {
-    emit(NumberCheckerLoading());
+    emit(AdmitCarLoading());
 
     try {
       await getCarByPlateUseCase.admitCar(carId);
@@ -43,7 +43,7 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
   }
 
   Future<void> exitCar(int carId) async {
-    emit(NumberCheckerLoading());
+    emit(ExitCarLoading());
 
     try {
       await getCarByPlateUseCase.exitCar(carId);

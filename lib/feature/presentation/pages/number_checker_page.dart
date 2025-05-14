@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,7 @@ import '../widgets/check_result.dart';
 import '../widgets/left_side_bar.dart';
 import '../widgets/number_car_field.dart';
 import '../widgets/region_field.dart';
+import '../widgets/top_bar_navigation.dart';
 
 enum CheckerStep { initial, input, result, confirmed }
 
@@ -18,13 +20,17 @@ class NumberCheckerPage extends StatefulWidget {
 }
 
 class _NumberCheckerPageState extends State<NumberCheckerPage> {
+  bool _isCivil = true;
   CheckerStep _step = CheckerStep.initial;
   bool _isEntry = true;
   List<TextEditingController> _controllers = [];
   List<FocusNode> _focusNodes = [];
   final _regionController = TextEditingController();
   final _regionFocus = FocusNode();
-  NumberCheckerState? _lastState;
+  Timer? _confirmTimer;
+
+  // Переменная для хранения текущей выбранной вкладки
+  String _selectedTab = 'home'; // 'home' или 'history'
 
   @override
   void initState() {
@@ -33,17 +39,25 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
   }
 
   void _initializeFields() {
+    _disposeFields(); // Очистим предыдущие
     final length = 6;
-    _controllers.forEach((c) => c.dispose());
-    _focusNodes.forEach((f) => f.dispose());
     _controllers = List.generate(length, (_) => TextEditingController());
     _focusNodes = List.generate(length, (_) => FocusNode());
   }
 
+  void _disposeFields() {
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
+  }
+
   @override
   void dispose() {
-    _controllers.forEach((controller) => controller.dispose());
-    _focusNodes.forEach((focusNode) => focusNode.dispose());
+    _confirmTimer?.cancel();
+    _disposeFields();
     _regionController.dispose();
     _regionFocus.dispose();
     super.dispose();
@@ -57,150 +71,125 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
     });
   }
 
+  // Метод для изменения вкладки
+  void _changeTab(String tab) {
+    setState(() {
+      _selectedTab = tab;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Row(
         children: [
-          const LeftSidebar(),
+          const LeftSidebar(), // Левую панель оставляем неизменной
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    height: 100,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: const Color(0xFF00312C), borderRadius: BorderRadius.circular(12)),
-                    child: const Center(
-                      child: Text(
-                        'Регистрационный знак транспортного средства',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
-                      ),
-                    ),
-                  ),
+                  // Передаем состояние выбранной вкладки в TopBarWithNavigation
+                  TopBarWithNavigation(selectedTab: _selectedTab, onTabChanged: _changeTab),
                   const SizedBox(height: 16),
-                  if (_step == CheckerStep.initial) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00312C),
-                              side: const BorderSide(color: Color(0xFF00312C)),
-                              minimumSize: const Size(100, 100),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            onPressed:
+                  // Отображаем содержимое в зависимости от выбранной вкладки
+                  if (_selectedTab == 'home') ...[
+                    // Когда выбрана вкладка "Домик", показываем весь контент
+                    if (_step == CheckerStep.initial)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _entryExitButton(
+                            label: 'Заезд',
+                            color: const Color(0xFF00312C),
+                            onTap:
                                 () => setState(() {
                                   _step = CheckerStep.input;
                                   _isEntry = true;
                                 }),
-                            child: const Text(
-                              'Заезд',
-                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
                           ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF37B7B),
-                              side: const BorderSide(color: Color(0xFF00312C)),
-                              minimumSize: const Size(100, 100),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            onPressed:
+                          const SizedBox(width: 20),
+                          _entryExitButton(
+                            label: 'Выезд',
+                            color: const Color(0xFFF37B7B),
+                            onTap:
                                 () => setState(() {
                                   _step = CheckerStep.input;
                                   _isEntry = false;
                                 }),
-                            child: const Text(
-                              'Выезд',
-                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ] else if (_step == CheckerStep.input || _step == CheckerStep.result) ...[
-                    BlocBuilder<NumberCheckerCubit, NumberCheckerState>(
-                      builder: (context, state) {
-                        _lastState = state;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8.0),
-                                  height: 110,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: Colors.black, width: 2),
+                        ],
+                      )
+                    else if (_step == CheckerStep.input || _step == CheckerStep.result)
+                      // Здесь ваш код для блока, когда выбран шаг "input" или "result"
+                      BlocBuilder<NumberCheckerCubit, NumberCheckerState>(
+                        builder: (context, state) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  _buildRZButton('Гражданские РЗ', _isCivil, () {
+                                    setState(() {
+                                      _isCivil = true;
+                                      _initializeFields();
+                                    });
+                                  }),
+                                  const SizedBox(width: 8),
+                                  _buildRZButton('Военные РЗ', !_isCivil, () {
+                                    setState(() {
+                                      _isCivil = false;
+                                      _initializeFields();
+                                    });
+                                  }),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildNumberInputField(),
+                                  const SizedBox(width: 16),
+                                  SizedBox(
+                                    width: 180,
+                                    child: RegionField(controller: _regionController, focusNode: _regionFocus),
                                   ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: List.generate(_controllers.length, (index) => NumberCarField(
-                                      controller: _controllers[index],
-                                      focusNode: _focusNodes[index],
-                                      isLetter: index == 0 || index == 4 || index == 5, // как у тебя раньше было
-                                      index: index,
-                                      controllers: _controllers,
-                                      focusNodes: _focusNodes,
-                                    ),),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                SizedBox(width: 180, child: RegionField(
-                                  controller: _regionController,
-                                  focusNode: _regionFocus,
-                                ),),
-                                if (_step == CheckerStep.input || state is NumberNotExists) ...[
-                                  SizedBox(width: 20),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF7E7E7E),
-                                        side: const BorderSide(color: Color(0xFF00312C)),
-                                        minimumSize: const Size(100, 100),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      ),
-                                      onPressed: () {
-                                        final number =
-                                            _controllers.map((c) => c.text).join('') + _regionController.text;
-                                        context.read<NumberCheckerCubit>().checkNumber(number);
-                                        setState(() => _step = CheckerStep.result);
-                                      },
-                                      child: const Text(
-                                        'Проверить',
-                                        style: TextStyle(
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
+                                  const SizedBox(width: 20),
+                                  if (_step == CheckerStep.input ||
+                                      state is NumberCheckerLoading ||
+                                      state is NumberNotExists)
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: _buttonStyle(const Color(0xFF00312C)),
+                                        onPressed: () {
+                                          final number =
+                                              _controllers.map((c) => c.text).join('') + _regionController.text;
+                                          context.read<NumberCheckerCubit>().checkNumber(number);
+                                          setState(() => _step = CheckerStep.result);
+                                        },
+                                        child:
+                                            state is NumberCheckerLoading
+                                                ? const CircularProgressIndicator(color: Colors.white)
+                                                : const Text(
+                                                  'Проверить',
+                                                  style: TextStyle(
+                                                    fontSize: 28,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
                                       ),
                                     ),
-                                  ),
                                   const SizedBox(width: 20),
                                   Expanded(
                                     child: ElevatedButton(
+                                      style: _buttonStyle(const Color(0xFFF37B7B)),
                                       onPressed: () {
                                         _reset();
                                         context.read<NumberCheckerCubit>().reset();
                                       },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFFF37B7B),
-                                        side: const BorderSide(color: Color(0xFF00312C)),
-                                        minimumSize: const Size(100, 100),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      ),
                                       child: const Text(
                                         'Назад',
                                         style: TextStyle(
@@ -211,93 +200,79 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 16),
                                 ],
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            if (state is NumberExists || state is NumberNotExists) ...[
-                              CheckResult(state: state),
-                              if (state is NumberExists) ...[
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF00312C),
-                                          side: const BorderSide(color: Color(0xFF00312C)),
-                                          minimumSize: const Size(100, 100),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                        ),
-                                        onPressed: () async {
-                                          final carId = state.person.id ?? 0;
-                                          if (_isEntry) {
-                                            await context.read<NumberCheckerCubit>().admitCar(carId);
-                                            context.read<NumberCheckerCubit>().reset();
-
-                                          } else {
-                                            await context.read<NumberCheckerCubit>().exitCar(carId);
-                                            context.read<NumberCheckerCubit>().reset();
-
-                                          }
-
-                                          setState(() => _step = CheckerStep.confirmed);
-
-                                          // Через 5 секунд вернемся к начальному состоянию
-                                          Future.delayed(const Duration(seconds: 3), () {
-                                            if (mounted) {
-                                              _reset();
+                              ),
+                              const SizedBox(height: 16),
+                              if (state is NumberExists || state is NumberNotExists) ...[
+                                CheckResult(state: state),
+                                if (state is NumberExists)
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: _buttonStyle(const Color(0xFF00312C)),
+                                          onPressed: () async {
+                                            final carId = state.person.id ?? 0;
+                                            if (_isEntry) {
+                                              await context.read<NumberCheckerCubit>().admitCar(carId);
+                                            } else {
+                                              await context.read<NumberCheckerCubit>().exitCar(carId);
                                             }
-                                          });
-                                        },
+                                            context.read<NumberCheckerCubit>().reset();
+                                            setState(() => _step = CheckerStep.confirmed);
 
-                                        child: Text(
-                                          _isEntry ? 'Подтвердить въезд' : 'Подтвердить выезд',
-                                          style: TextStyle(
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                            _confirmTimer = Timer(const Duration(seconds: 3), () {
+                                              if (mounted) {
+                                                _reset();
+                                              }
+                                            });
+                                          },
+                                          child: Text(
+                                            _isEntry ? 'Подтвердить въезд' : 'Подтвердить выезд',
+                                            style: const TextStyle(
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(width: 20),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          _reset();
-                                          context.read<NumberCheckerCubit>().reset();
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFFF37B7B),
-                                          side: const BorderSide(color: Color(0xFF00312C)),
-                                          minimumSize: const Size(100, 100),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                        ),
-                                        child: const Text(
-                                          'Назад',
-                                          style: TextStyle(
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                      const SizedBox(width: 20),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: _buttonStyle(const Color(0xFFF37B7B)),
+                                          onPressed: () {
+                                            _reset();
+                                            context.read<NumberCheckerCubit>().reset();
+                                          },
+                                          child: const Text(
+                                            'Назад',
+                                            style: TextStyle(
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                    ],
+                                  ),
                               ],
                             ],
-                          ],
-                        );
-                      },
-                    ),
-                  ] else if (_step == CheckerStep.confirmed) ...[
-                    const SizedBox(height: 32),
-                    const Center(child: CircularProgressIndicator()),
+                          );
+                        },
+                      )
+                    else if (_step == CheckerStep.confirmed) ...[
+                      const SizedBox(height: 32),
+                      const Center(child: CircularProgressIndicator()),
+                      const SizedBox(height: 16),
+                      const Center(child: Text('Операция завершена')),
+                      const SizedBox(height: 16),
+                    ],
+                  ] else ...[
+                    // Когда выбрана вкладка "Документ", показываем только верхнюю панель
                     const SizedBox(height: 16),
-                    const Center(child: Text('Операция завершена')), // Можно заменить на анимацию
-                    const SizedBox(height: 16),
+                    const Center(child: Text('Здесь только панель навигации')),
                   ],
                 ],
               ),
@@ -307,6 +282,66 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
       ),
     );
   }
+  Widget _buildRZButton(String label, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF00312C) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.black26),
+        ),
+        child: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.black)),
+      ),
+    );
+  }
+  Widget _entryExitButton({required String label, required Color color, required VoidCallback onTap}) {
+    return Expanded(
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          side: BorderSide(color: color),
+          minimumSize: const Size(100, 100),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        onPressed: onTap,
+        child: Text(label, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
+      ),
+    );
+  }
 
+  ButtonStyle _buttonStyle(Color color) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: color,
+      side: BorderSide(color: color),
+      minimumSize: const Size(100, 120),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    );
+  }
 
+  Widget _buildNumberInputField() {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      height: 110,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.black, width: 2),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: List.generate(
+          _controllers.length,
+          (index) => NumberCarField(
+            controller: _controllers[index],
+            focusNode: _focusNodes[index],
+            isLetter: _isCivil ? (index == 0 || index == 4 || index == 5) : (index == 4 || index == 5),
+            index: index,
+            controllers: _controllers,
+            focusNodes: _focusNodes,
+          ),
+        ),
+      ),
+    );
+  }
 }

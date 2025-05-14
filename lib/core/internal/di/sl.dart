@@ -33,8 +33,8 @@ abstract class RegisterModule {
 
     Dio dio = Dio(
       BaseOptions(
-        // baseUrl: netGatewayServerUrl,
-        baseUrl: localGatewayServerUrl,
+        baseUrl: netGatewayServerUrl,
+        // baseUrl: localGatewayServerUrl,
         connectTimeout: const Duration(milliseconds: 15000),
 
       ),

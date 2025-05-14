@@ -10,6 +10,8 @@ abstract class NumberCheckerState extends Equatable {
 class NumberCheckerInitial extends NumberCheckerState {}
 
 class NumberCheckerLoading extends NumberCheckerState {}
+class AdmitCarLoading extends NumberCheckerState {}
+class ExitCarLoading extends NumberCheckerState {}
 
 class NumberExists extends NumberCheckerState {
   final Person person;

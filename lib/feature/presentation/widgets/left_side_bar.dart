@@ -55,12 +55,12 @@ class _LeftSidebarState extends State<LeftSidebar> {
             initialDay: _day,
           ),
 
-          const SizedBox(height: 16),
-
-          // Две пустые кнопки
-          const EmptyButton(),
-          const SizedBox(height: 12),
-          const EmptyButton(),
+          // const SizedBox(height: 16),
+          //
+          // // Две пустые кнопки
+          // const EmptyButton(),
+          // const SizedBox(height: 12),
+          // const EmptyButton(),
         ],
       ),
     );
