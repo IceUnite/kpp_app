@@ -86,21 +86,41 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () => setState(() {
-                              _step = CheckerStep.input;
-                              _isEntry = true;
-                            }),
-                            child: const Text('Въезд'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF00312C),
+                              side: const BorderSide(color: Color(0xFF00312C)),
+                              minimumSize: const Size(100, 100),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            onPressed:
+                                () => setState(() {
+                                  _step = CheckerStep.input;
+                                  _isEntry = true;
+                                }),
+                            child: const Text(
+                              'Заезд',
+                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 20),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () => setState(() {
-                              _step = CheckerStep.input;
-                              _isEntry = false;
-                            }),
-                            child: const Text('Выезд'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF37B7B),
+                              side: const BorderSide(color: Color(0xFF00312C)),
+                              minimumSize: const Size(100, 100),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            onPressed:
+                                () => setState(() {
+                                  _step = CheckerStep.input;
+                                  _isEntry = false;
+                                }),
+                            child: const Text(
+                              'Выезд',
+                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
                           ),
                         ),
                       ],
@@ -129,44 +149,131 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                 ),
                                 const SizedBox(width: 16),
                                 SizedBox(width: 180, child: _buildRegionField()),
+                                if (_step == CheckerStep.input || state is NumberNotExists) ...[
+                                  SizedBox(width: 20),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF7E7E7E),
+                                        side: const BorderSide(color: Color(0xFF00312C)),
+                                        minimumSize: const Size(100, 100),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      ),
+                                      onPressed: () {
+                                        final number =
+                                            _controllers.map((c) => c.text).join('') + _regionController.text;
+                                        context.read<NumberCheckerCubit>().checkNumber(number);
+                                        setState(() => _step = CheckerStep.result);
+                                      },
+                                      child: const Text(
+                                        'Проверить',
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        _reset();
+                                        context.read<NumberCheckerCubit>().reset();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFF37B7B),
+                                        side: const BorderSide(color: Color(0xFF00312C)),
+                                        minimumSize: const Size(100, 100),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      ),
+                                      child: const Text(
+                                        'Назад',
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                ],
                               ],
                             ),
                             const SizedBox(height: 16),
-                            if (_step == CheckerStep.input)
-                              ElevatedButton(
-                                onPressed: () {
-                                  final number = _controllers.map((c) => c.text).join('') + _regionController.text;
-                                  context.read<NumberCheckerCubit>().checkNumber(number);
-                                  setState(() => _step = CheckerStep.result);
-                                },
-                                child: const Text('Проверить'),
-                              ),
-                            const SizedBox(height: 8),
-                            ElevatedButton(onPressed: _reset, child: const Text('Назад')),
-                            const SizedBox(height: 16),
                             if (state is NumberExists || state is NumberNotExists) ...[
                               _buildResultWidget(state),
-                              if (state is NumberExists)
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    final carId = state.person.id ?? 0;
-                                    if (_isEntry) {
-                                      await context.read<NumberCheckerCubit>().admitCar(carId);
-                                    } else {
-                                      await context.read<NumberCheckerCubit>().exitCar(carId);
-                                    }
+                              if (state is NumberExists) ...[
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFF00312C),
+                                          side: const BorderSide(color: Color(0xFF00312C)),
+                                          minimumSize: const Size(100, 100),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        ),
+                                        onPressed: () async {
+                                          final carId = state.person.id ?? 0;
+                                          if (_isEntry) {
+                                            await context.read<NumberCheckerCubit>().admitCar(carId);
+                                            context.read<NumberCheckerCubit>().reset();
 
-                                    setState(() => _step = CheckerStep.confirmed);
+                                          } else {
+                                            await context.read<NumberCheckerCubit>().exitCar(carId);
+                                            context.read<NumberCheckerCubit>().reset();
 
-                                    // Через 5 секунд вернемся к начальному состоянию
-                                    Future.delayed(const Duration(seconds: 5), () {
-                                      if (mounted) {
-                                        _reset();
-                                      }
-                                    });
-                                  },
-                                  child: Text(_isEntry ? 'Подтвердить въезд' : 'Подтвердить выезд'),
+                                          }
+
+                                          setState(() => _step = CheckerStep.confirmed);
+
+                                          // Через 5 секунд вернемся к начальному состоянию
+                                          Future.delayed(const Duration(seconds: 3), () {
+                                            if (mounted) {
+                                              _reset();
+                                            }
+                                          });
+                                        },
+
+                                        child: Text(
+                                          _isEntry ? 'Подтвердить въезд' : 'Подтвердить выезд',
+                                          style: TextStyle(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 20),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          _reset();
+                                          context.read<NumberCheckerCubit>().reset();
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFFF37B7B),
+                                          side: const BorderSide(color: Color(0xFF00312C)),
+                                          minimumSize: const Size(100, 100),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        ),
+                                        child: const Text(
+                                          'Назад',
+                                          style: TextStyle(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              ],
                             ],
                           ],
                         );
@@ -178,8 +285,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                     const SizedBox(height: 16),
                     const Center(child: Text('Операция завершена')), // Можно заменить на анимацию
                     const SizedBox(height: 16),
-                    ElevatedButton(onPressed: _reset, child: const Text('Вернуться')),
-                  ]
+                  ],
                 ],
               ),
             ),
@@ -219,12 +325,19 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
           focusNode: _focusNodes[index],
           textAlign: TextAlign.center,
           maxLength: 1,
-          textCapitalization: TextCapitalization.characters,
           inputFormatters: [
             LengthLimitingTextInputFormatter(1),
-            FilteringTextInputFormatter.allow(RegExp(isLetter ? r'[А-Яа-яA-Za-z]' : r'[0-9]')),
+            FilteringTextInputFormatter.allow(RegExp(isLetter ? r'[А-Яа-я]' : r'[0-9]')),
           ],
           onChanged: (text) {
+            if (isLetter && text.isNotEmpty) {
+              final upper = text.toUpperCase();
+              _controllers[index].value = TextEditingValue(
+                text: upper,
+                selection: TextSelection.collapsed(offset: upper.length),
+              );
+            }
+
             if (text.isNotEmpty && index < _focusNodes.length - 1) {
               FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
             }
@@ -286,7 +399,10 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('✅ Пользователь найден!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green.shade900)),
+            Text(
+              '✅ Пользователь найден!',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green.shade900),
+            ),
             const SizedBox(height: 8),
             Text('Фамилия: ${person.surname}'),
             Text('Имя: ${person.name}'),
@@ -305,7 +421,10 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
           border: Border.all(color: Colors.red.shade700, width: 2),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text('❌ Пользователь не найден.', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red.shade900)),
+        child: Text(
+          '❌ Пользователь не найден.',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red.shade900),
+        ),
       );
     }
     return const SizedBox.shrink();
