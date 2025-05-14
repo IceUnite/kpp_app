@@ -29,4 +29,36 @@ class CarRemoteDataSource {
       throw Exception('Unexpected error: $e');
     }
   }
+
+  Future<String> admitCar(int carId) async {
+    try {
+      final response = await _dio.post('/admit_car/$carId');
+
+      if (response.statusCode == 200) {
+        // Предполагается, что API возвращает строку в JSON
+        return response.data.toString();
+      } else {
+        throw Exception('Failed to admit car');
+      }
+    } on DioError catch (e) {
+      throw Exception('Dio error: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
+  Future<String> exitCar(int carId) async {
+    try {
+      final response = await _dio.post('/exit_car/$carId');
+
+      if (response.statusCode == 200) {
+        return response.data.toString();
+      } else {
+        throw Exception('Failed to exit car');
+      }
+    } on DioError catch (e) {
+      throw Exception('Dio error: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
 }

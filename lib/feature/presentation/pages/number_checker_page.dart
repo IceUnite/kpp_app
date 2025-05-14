@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:async';
 
 import '../bloc/number_checker_cubit.dart';
 import '../widgets/left_side_bar.dart';
@@ -14,43 +13,35 @@ class NumberCheckerPage extends StatefulWidget {
 }
 
 class _NumberCheckerPageState extends State<NumberCheckerPage> {
-
-
   bool _isCivil = true;
-
-  final _mainController = TextEditingController();
+  List<TextEditingController> _controllers = [];
+  List<FocusNode> _focusNodes = [];
   final _regionController = TextEditingController();
-
-  final _mainFocus = FocusNode();
   final _regionFocus = FocusNode();
+  NumberCheckerState? _lastState;
 
   @override
   void initState() {
     super.initState();
+    _initializeFields();
+  }
 
-    _mainController.addListener(() {
-      if (_mainController.text.length == 6) {
-        FocusScope.of(context).requestFocus(_regionFocus);
-      }
-    });
+  void _initializeFields() {
+    final length = 6;
+    _controllers.forEach((c) => c.dispose());
+    _focusNodes.forEach((f) => f.dispose());
+    _controllers = List.generate(length, (_) => TextEditingController());
+    _focusNodes = List.generate(length, (_) => FocusNode());
   }
 
   @override
   void dispose() {
-    _mainController.dispose();
+    _controllers.forEach((controller) => controller.dispose());
+    _focusNodes.forEach((focusNode) => focusNode.dispose());
     _regionController.dispose();
-    _mainFocus.dispose();
     _regionFocus.dispose();
     super.dispose();
   }
-
-  bool _validateMain(String value) {
-    final civilPattern = RegExp(r'^[А-Я]{2}[0-9]{3}[А-Я]{1}$');
-    final militaryPattern = RegExp(r'^[0-9]{4}[А-Я]{2}$');
-    return _isCivil ? civilPattern.hasMatch(value) : militaryPattern.hasMatch(value);
-  }
-
-  bool _validateRegion(String value) => RegExp(r'^\d{3}$').hasMatch(value);
 
   @override
   Widget build(BuildContext context) {
@@ -68,10 +59,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                   Container(
                     height: 100,
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF00312C),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    decoration: BoxDecoration(color: const Color(0xFF00312C), borderRadius: BorderRadius.circular(12)),
                     child: const Center(
                       child: Text(
                         'Регистрационный знак транспортного средства',
@@ -85,114 +73,176 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       _buildRZButton('Гражданские РЗ', _isCivil, () {
                         setState(() {
                           _isCivil = true;
-                          _mainController.clear();
-                          _regionController.clear();
+                          _initializeFields();
                         });
                       }),
                       const SizedBox(width: 8),
                       _buildRZButton('Военные РЗ', !_isCivil, () {
                         setState(() {
                           _isCivil = false;
-                          _mainController.clear();
-                          _regionController.clear();
+                          _initializeFields();
                         });
                       }),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(child: _buildMainField()),
-                      const SizedBox(width: 16),
-                      SizedBox(width: 180, child: _buildRegionField()),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  BlocConsumer<NumberCheckerCubit, NumberCheckerState>(
-                    listener: (context, state) {
-                      if (state is NumberExists) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: const Text('Номер найден'),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                  BlocBuilder<NumberCheckerCubit, NumberCheckerState>(
+                    builder: (context, state) {
+                      _lastState = state;
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            height: 110,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: Colors.black, width: 2),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: List.generate(_controllers.length, (index) {
+                                return _buildTextField(index);
+                              }),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Column(
+                            children: [SizedBox(width: 180, child: _buildRegionField()), const SizedBox(height: 12)],
+                          ),
+                          if (state is NumberExists) ...[
+                            SizedBox(width: 30),
+                            Column(
                               children: [
-                                if (state.person.surname != null) Text('Фамилия: ${state.person.surname}'),
-                                if (state.person.name != null) Text('Имя: ${state.person.name}'),
-                                if (state.person.lastname != null) Text('Отчество: ${state.person.lastname}'),
-                                if (state.person.number != null) Text('Номер: ${state.person.number}'),
-                                if (state.person.status != null) Text('Статус: ${state.person.status}'),
-                                if (state.person.timeIn != null) Text('Время входа: ${state.person.timeIn}'),
-                                if (state.person.timeOut != null) Text('Время выхода: ${state.person.timeOut}'),
+                                SizedBox(
+                                  width: 180,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      // final carId = 0;
+                                      final carId = state.person.id;
+                                      context.read<NumberCheckerCubit>().admitCar(carId ?? 0);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF25B97B),
+                                      side: const BorderSide(color: Color(0xFF00312C)),
+                                      minimumSize: const Size(double.infinity, 48),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    child: const Text('Заехать', style: TextStyle(color: Colors.white),),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                SizedBox(
+                                  width: 180,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      // final carId = 0;
+                                      final carId = state.person.id;
+                                      context.read<NumberCheckerCubit>().exitCar(carId ?? 0);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFF37B7B),
+                                      side: const BorderSide(color: Color(0xFF00312C)),
+                                      minimumSize: const Size(double.infinity, 48),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    child: const Text('Выехать', style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
                               ],
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('Закрыть'),
-                              ),
-                            ],
-                          ),
-                        );
-                      } else if (state is NumberNotExists) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => const AlertDialog(
-                            title: Text('Номер не найден'),
-                            content: Text('Такого номера не существует.'),
-                          ),
-                        );
-                      }
-                    },
-                    builder: (context, state) {
-                      // Если в состоянии загрузки, показываем индикатор
-                      if (state is NumberCheckerLoading) {
-                        return ElevatedButton(
-                          onPressed: null,  // Блокируем кнопку во время загрузки
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                          child: const SizedBox(
-                            width: 24,  // Размер индикатора
-                            height: 24, // Размер индикатора
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              strokeWidth: 3, // Толщина индикатора
-                            ),
-                          ),
-                        );
-                      }
-
-                      // В обычном состоянии показываем текст "Проверить"
-                      return ElevatedButton(
-                        onPressed: () {
-                          final main = _mainController.text.toUpperCase();
-                          final region = _regionController.text;
-                          if (_validateMain(main) && _validateRegion(region)) {
-                            final fullNumber = main + region;
-                            context.read<NumberCheckerCubit>().checkNumber(fullNumber);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Неверный формат номера')),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: const Text('Проверить'),
+                          ],
+                        ],
                       );
                     },
                   ),
+                  const SizedBox(height: 16),
+                  BlocBuilder<NumberCheckerCubit, NumberCheckerState>(
+                    builder: (context, state) {
+                      Color? backgroundColor;
+                      Color? borderColor;
+                      Widget resultWidget = const SizedBox.shrink();
 
+                      if (state is NumberExists) {
+                        final person = state.person;
+                        backgroundColor = Colors.green.shade50;
+                        borderColor = Colors.green.shade700;
+
+                        resultWidget = Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '✅ Пользователь найден!',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green.shade900),
+                            ),
+                            const SizedBox(height: 8),
+                            Text('Фамилия: ${person.surname}'),
+                            Text('Имя: ${person.name}'),
+                            Text('Отчество: ${person.lastname}'),
+                            Text('Номер: ${person.number}'),
+                          ],
+                        );
+                      } else if (state is NumberNotExists) {
+                        backgroundColor = Colors.red.shade50;
+                        borderColor = Colors.red.shade700;
+
+                        resultWidget = Text(
+                          '❌ Пользователь не найден.',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red.shade900),
+                        );
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (state is NumberCheckerLoading)
+                            ElevatedButton(
+                              onPressed: null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            )
+                          else
+                            ElevatedButton(
+                              onPressed: () {
+                                final number = _controllers.map((c) => c.text).join('') + _regionController.text;
+                                context.read<NumberCheckerCubit>().checkNumber(number);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: const Text('Проверить'),
+                            ),
+                          const SizedBox(height: 16),
+                          if (backgroundColor != null && borderColor != null)
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: backgroundColor,
+                                border: Border.all(color: borderColor, width: 2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: resultWidget,
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -217,85 +267,85 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
     );
   }
 
-  Widget _buildMainField() {
-    return TextField(
-      controller: _mainController,
-      focusNode: _mainFocus,
-      maxLength: 6,
-      textCapitalization: TextCapitalization.characters,
-      inputFormatters: [
-        LengthLimitingTextInputFormatter(6),
-        UpperCaseTextFormatter(),
-        PlateMaskFormatter(isCivil: _isCivil),
-      ],
-      decoration: const InputDecoration(
-        labelText: 'Основной номер',
-        border: OutlineInputBorder(),
-        counterText: '',
+  Widget _buildTextField(int index) {
+    final isLetter = _isCivil ? [0, 4, 5].contains(index) : [4, 5].contains(index);
+    final double height = isLetter ? 60.0 : 80.0;
+
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      width: 48,
+      height: height,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black, width: 2),
+      ),
+      child: Focus(
+        onKey: (FocusNode node, RawKeyEvent event) {
+          if (event is RawKeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.backspace &&
+              _controllers[index].text.isEmpty &&
+              index > 0) {
+            _controllers[index - 1].clear();
+            FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+            return KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
+        },
+        child: TextField(
+          controller: _controllers[index],
+          focusNode: _focusNodes[index],
+          textAlign: TextAlign.center,
+          maxLength: 1,
+          textCapitalization: TextCapitalization.characters,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(1),
+            FilteringTextInputFormatter.allow(RegExp(isLetter ? r'[А-Яа-яA-Za-z]' : r'[0-9]')),
+          ],
+          onChanged: (text) {
+            if (text.isNotEmpty && index < _focusNodes.length - 1) {
+              FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+            }
+          },
+          decoration: const InputDecoration(counterText: '', border: InputBorder.none),
+          style: const TextStyle(fontSize: 44),
+        ),
       ),
     );
   }
 
   Widget _buildRegionField() {
-    return TextField(
-      controller: _regionController,
-      focusNode: _regionFocus,
-      maxLength: 3,
-      keyboardType: TextInputType.number,
-      inputFormatters: [
-        LengthLimitingTextInputFormatter(3),
-        FilteringTextInputFormatter.digitsOnly,
-      ],
-      decoration: const InputDecoration(
-        labelText: 'Регион',
-        border: OutlineInputBorder(),
-        counterText: '',
+    return Container(
+      height: 110,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(14)),
+      child: TextField(
+        controller: _regionController,
+        focusNode: _regionFocus,
+        maxLength: 3,
+        keyboardType: TextInputType.number,
+        textAlign: TextAlign.center,
+        textAlignVertical: TextAlignVertical.center,
+        inputFormatters: [LengthLimitingTextInputFormatter(3), FilteringTextInputFormatter.digitsOnly],
+        decoration: InputDecoration(
+          labelText: 'Регион',
+          labelStyle: const TextStyle(fontSize: 18),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Colors.black, width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Colors.black, width: 2),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(color: Colors.black, width: 2),
+          ),
+          counterText: '',
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 35),
+        ),
+        style: const TextStyle(fontSize: 44, letterSpacing: 12),
       ),
-    );
-  }
-}
-
-/// Верхний регистр
-class UpperCaseTextFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    return newValue.copyWith(
-      text: newValue.text.toUpperCase(),
-      selection: newValue.selection,
-    );
-  }
-}
-
-/// Маска по позициям
-class PlateMaskFormatter extends TextInputFormatter {
-  final bool isCivil;
-  PlateMaskFormatter({required this.isCivil});
-
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    String newText = newValue.text.toUpperCase();
-    if (newText.length > 6) return oldValue;
-
-    for (int i = 0; i < newText.length; i++) {
-      final char = newText[i];
-      final isLetter = RegExp(r'[А-Я]').hasMatch(char);
-      final isDigit = RegExp(r'[0-9]').hasMatch(char);
-
-      bool valid = false;
-      if (isCivil) {
-        // АА111А
-        valid = (i < 2 && isLetter) || (i >= 2 && i <= 4 && isDigit) || (i == 5 && isLetter);
-      } else {
-        // 1111АА
-        valid = (i < 4 && isDigit) || (i >= 4 && isLetter);
-      }
-
-      if (!valid) return oldValue;
-    }
-
-    return newValue.copyWith(
-      text: newText,
-      selection: newValue.selection,
     );
   }
 }

@@ -13,4 +13,14 @@ class CarRepositoryImpl implements CarRepository {
   Future<PersonModel> getCarByPlate(String plateNumber) async {
     return await _carRemoteDataSource.getCarByPlate(plateNumber);
   }
+
+  @override
+  Future<String> admitCar(int carId) async {
+    return await _carRemoteDataSource.admitCar(carId);
+  }
+
+  @override
+  Future<String> exitCar(int carId) async {
+    return await _carRemoteDataSource.exitCar(carId);
+  }
 }

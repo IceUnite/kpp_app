@@ -68,7 +68,7 @@ class _TimeAndDateSectionState extends State<TimeAndDateSection> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(12),
@@ -77,19 +77,25 @@ class _TimeAndDateSectionState extends State<TimeAndDateSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            _time,
-            style: const TextStyle(
-              fontSize: 50,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF003735),
+          Center(
+            child: Text(
+              _time,
+              style: const TextStyle(
+
+                fontSize: 54,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF003735),
+              ),
             ),
           ),
-          const SizedBox(height: 8),
+          // const SizedBox(height: 8),//
           Text(
-            '$_date\n$_day',
+            '$_date \n$_day',
             style: const TextStyle(
-              fontSize: 14,
+              height: 0.9,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF003735),
             ),
           ),
         ],
