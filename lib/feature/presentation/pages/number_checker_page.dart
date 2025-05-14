@@ -110,48 +110,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                           Column(
                             children: [SizedBox(width: 180, child: _buildRegionField()), const SizedBox(height: 12)],
                           ),
-                          if (state is NumberExists) ...[
-                            SizedBox(width: 30),
-                            Column(
-                              children: [
-                                SizedBox(
-                                  width: 180,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // final carId = 0;
-                                      final carId = state.person.id;
-                                      context.read<NumberCheckerCubit>().admitCar(carId ?? 0);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF25B97B),
-                                      side: const BorderSide(color: Color(0xFF00312C)),
-                                      minimumSize: const Size(double.infinity, 48),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    ),
-                                    child: const Text('Заехать', style: TextStyle(color: Colors.white),),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                SizedBox(
-                                  width: 180,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // final carId = 0;
-                                      final carId = state.person.id;
-                                      context.read<NumberCheckerCubit>().exitCar(carId ?? 0);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFF37B7B),
-                                      side: const BorderSide(color: Color(0xFF00312C)),
-                                      minimumSize: const Size(double.infinity, 48),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    ),
-                                    child: const Text('Выехать', style: TextStyle(color: Colors.white)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+
                         ],
                       );
                     },
@@ -195,6 +154,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+
                           if (state is NumberCheckerLoading)
                             ElevatedButton(
                               onPressed: null,
@@ -239,6 +199,46 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                               ),
                               child: resultWidget,
                             ),
+                          if (state is NumberExists) ...[
+                            SizedBox(height: 30),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      // final carId = 0;
+                                      final carId = state.person.id;
+                                      context.read<NumberCheckerCubit>().admitCar(carId ?? 0);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF25B97B),
+                                      side: const BorderSide(color: Color(0xFF00312C)),
+                                      // minimumSize: const Size(double.infinity, 48),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    child: const Text('Заехать', style: TextStyle(color: Colors.white),),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      // final carId = 0;
+                                      final carId = state.person.id;
+                                      context.read<NumberCheckerCubit>().exitCar(carId ?? 0);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFF37B7B),
+                                      side: const BorderSide(color: Color(0xFF00312C)),
+                                      // minimumSize: const Size(double.infinity, 48),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    child: const Text('Выехать', style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       );
                     },
