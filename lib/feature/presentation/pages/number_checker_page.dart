@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/number_checker_cubit.dart';
+import '../widgets/check_result.dart';
 import '../widgets/left_side_bar.dart';
+import '../widgets/number_car_field.dart';
+import '../widgets/region_field.dart';
 
 enum CheckerStep { initial, input, result, confirmed }
 
@@ -144,11 +147,21 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                   ),
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: List.generate(_controllers.length, (index) => _buildTextField(index)),
+                                    children: List.generate(_controllers.length, (index) => NumberCarField(
+                                      controller: _controllers[index],
+                                      focusNode: _focusNodes[index],
+                                      isLetter: index == 0 || index == 4 || index == 5, // как у тебя раньше было
+                                      index: index,
+                                      controllers: _controllers,
+                                      focusNodes: _focusNodes,
+                                    ),),
                                   ),
                                 ),
                                 const SizedBox(width: 16),
-                                SizedBox(width: 180, child: _buildRegionField()),
+                                SizedBox(width: 180, child: RegionField(
+                                  controller: _regionController,
+                                  focusNode: _regionFocus,
+                                ),),
                                 if (_step == CheckerStep.input || state is NumberNotExists) ...[
                                   SizedBox(width: 20),
                                   Expanded(
@@ -204,7 +217,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                             ),
                             const SizedBox(height: 16),
                             if (state is NumberExists || state is NumberNotExists) ...[
-                              _buildResultWidget(state),
+                              CheckResult(state: state),
                               if (state is NumberExists) ...[
                                 Row(
                                   children: [
@@ -295,138 +308,5 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
     );
   }
 
-  Widget _buildTextField(int index) {
-    final isLetter = [0, 4, 5].contains(index);
-    final double height = isLetter ? 60.0 : 80.0;
 
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      width: 48,
-      height: height,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.black, width: 2),
-      ),
-      child: Focus(
-        onKey: (FocusNode node, RawKeyEvent event) {
-          if (event is RawKeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.backspace &&
-              _controllers[index].text.isEmpty &&
-              index > 0) {
-            _controllers[index - 1].clear();
-            FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
-            return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
-        },
-        child: TextField(
-          controller: _controllers[index],
-          focusNode: _focusNodes[index],
-          textAlign: TextAlign.center,
-          maxLength: 1,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(1),
-            FilteringTextInputFormatter.allow(RegExp(isLetter ? r'[А-Яа-я]' : r'[0-9]')),
-          ],
-          onChanged: (text) {
-            if (isLetter && text.isNotEmpty) {
-              final upper = text.toUpperCase();
-              _controllers[index].value = TextEditingValue(
-                text: upper,
-                selection: TextSelection.collapsed(offset: upper.length),
-              );
-            }
-
-            if (text.isNotEmpty && index < _focusNodes.length - 1) {
-              FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
-            }
-          },
-          decoration: const InputDecoration(counterText: '', border: InputBorder.none),
-          style: const TextStyle(fontSize: 44),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRegionField() {
-    return Container(
-      height: 110,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(14)),
-      child: TextField(
-        controller: _regionController,
-        focusNode: _regionFocus,
-        maxLength: 3,
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        textAlignVertical: TextAlignVertical.center,
-        inputFormatters: [LengthLimitingTextInputFormatter(3), FilteringTextInputFormatter.digitsOnly],
-        decoration: InputDecoration(
-          labelText: 'Регион',
-          labelStyle: const TextStyle(fontSize: 18),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Colors.black, width: 2),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Colors.black, width: 2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Colors.black, width: 2),
-          ),
-          counterText: '',
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 35),
-        ),
-        style: const TextStyle(fontSize: 44, letterSpacing: 12),
-      ),
-    );
-  }
-
-  Widget _buildResultWidget(NumberCheckerState state) {
-    if (state is NumberExists) {
-      final person = state.person;
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: Colors.green.shade50,
-          border: Border.all(color: Colors.green.shade700, width: 2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '✅ Пользователь найден!',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green.shade900),
-            ),
-            const SizedBox(height: 8),
-            Text('Фамилия: ${person.surname}'),
-            Text('Имя: ${person.name}'),
-            Text('Отчество: ${person.lastname}'),
-            Text('Номер: ${person.number}'),
-          ],
-        ),
-      );
-    } else if (state is NumberNotExists) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: Colors.red.shade50,
-          border: Border.all(color: Colors.red.shade700, width: 2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          '❌ Пользователь не найден.',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red.shade900),
-        ),
-      );
-    }
-    return const SizedBox.shrink();
-  }
 }
