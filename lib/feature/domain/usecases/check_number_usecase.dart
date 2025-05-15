@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 
 import '../entities/person.dart';
+import '../entities/report_entitie.dart';
 import '../repositories/car_repository.dart';
 
 @injectable
@@ -34,4 +35,14 @@ class GetCarByPlateUseCase {
       throw Exception('Error while exiting car: $e');
     }
   }
+
+  @override
+  Future<ReportEntity?> getReport({
+    required String startDate,
+  }) async {
+    final reportEntity = await _carRepository.getReport(startDate: startDate);
+    return reportEntity;
+  }
+
+
 }

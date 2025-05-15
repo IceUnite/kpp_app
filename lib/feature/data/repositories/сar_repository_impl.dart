@@ -1,7 +1,9 @@
 import 'package:injectable/injectable.dart';
+import '../../domain/entities/report_entitie.dart';
 import '../../domain/repositories/car_repository.dart';
 import '../datasource/remote_datasource.dart';
 import '../models/person_model.dart';
+import '../models/report_model.dart';
 
 @LazySingleton(as: CarRepository)
 class CarRepositoryImpl implements CarRepository {
@@ -23,4 +25,12 @@ class CarRepositoryImpl implements CarRepository {
   Future<String> exitCar(int carId) async {
     return await _carRemoteDataSource.exitCar(carId);
   }
+
+  @override
+  Future<ReportEntity?> getReport({required String startDate}) async {
+    final model = await _carRemoteDataSource.getReport(startDate: startDate);
+    return model?.toEntity();
+  }
+
+
 }

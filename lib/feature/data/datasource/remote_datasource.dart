@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
 import '../models/person_model.dart';
+import '../models/report_model.dart';
 
 @injectable
 class CarRemoteDataSource {
@@ -61,4 +62,48 @@ class CarRemoteDataSource {
       throw Exception('Unexpected error: $e');
     }
   }
+
+  Future<ReportModel?> getReport({required String startDate}) async {
+    try {
+      final response = await _dio.get(
+        '/generate_report',
+        queryParameters: {'start_date': startDate},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        if (data == null || data is! Map<String, dynamic>) {
+          return null;
+        }
+
+        final reportData = data['report'];
+
+        if (reportData == null) return null;
+
+        if (reportData is Map<String, dynamic>) {
+          return ReportModel.fromJson({'report': [reportData]});
+        }
+
+        if (reportData is List) {
+          return ReportModel.fromJson({'report': reportData});
+        }
+
+        throw Exception('Unexpected report data format: ${reportData.runtimeType}');
+      } else {
+        throw Exception('Failed to fetch report, status code: ${response.statusCode}');
+      }
+    } on DioError catch (e) {
+      throw Exception('Dio error: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
+
+
+
+
+
+
+
 }
