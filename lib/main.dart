@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
+import 'package:window_size/window_size.dart';
 import 'core/internal/di/sl.dart';
 import 'core/router/router.dart';
 import 'feature/presentation/bloc/number_checker_cubit.dart';
@@ -12,6 +14,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ru', null);
   configureDependencies();
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowTitle('KPP App');
+    final screens = await getScreenList();
+    final screen = screens.first;
+    setWindowFrame(screen.frame);
+  }
+
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   runApp(const MyApp());
 }

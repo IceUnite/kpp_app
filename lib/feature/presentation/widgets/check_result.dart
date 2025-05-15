@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../bloc/number_checker_cubit.dart';
+import '../bloc/number_checker_state.dart';
 
 class CheckResult extends StatelessWidget {
   final NumberCheckerState state;
@@ -26,10 +27,10 @@ class CheckResult extends StatelessWidget {
             Text('✅ Пользователь найден!',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green.shade900)),
             const SizedBox(height: 8),
-            Text('Фамилия: ${person.surname}'),
-            Text('Имя: ${person.name}'),
-            Text('Отчество: ${person.lastname}'),
-            Text('Номер: ${person.number}'),
+            Text('Фамилия: ${person?.surname}'),
+            Text('Имя: ${person?.name}'),
+            Text('Отчество: ${person?.lastname}'),
+            Text('Номер: ${person?.number}'),
           ],
         ),
       );
