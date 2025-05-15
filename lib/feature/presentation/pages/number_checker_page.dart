@@ -342,9 +342,9 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       },
                     )
                   else ...[
-                    const SizedBox(height: 16),
-                    StatisticsTable(),
-                    const SizedBox(height: 16),
+                    Expanded(
+                      child: StatisticsTable(),
+                    ),
                   ],
                 ],
               ),

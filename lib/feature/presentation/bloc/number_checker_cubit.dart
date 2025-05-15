@@ -99,8 +99,7 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
     try {
       final report = await getCarByPlateUseCase.getReport(startDate: startDate);
       emit(NumberCheckerInitial(person: state.person, report: report, step: state.step));
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   void reset() {
