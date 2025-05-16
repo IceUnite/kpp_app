@@ -18,6 +18,7 @@ import '../../../feature/data/repositories/%D1%81ar_repository_impl.dart'
     as _i237;
 import '../../../feature/domain/repositories/car_repository.dart' as _i206;
 import '../../../feature/domain/usecases/check_number_usecase.dart' as _i802;
+import '../../../feature/presentation/bloc/historiya_cubit.dart' as _i1003;
 import '../../../feature/presentation/bloc/number_checker_cubit.dart' as _i864;
 import 'sl.dart' as _i581;
 
@@ -38,6 +39,9 @@ _i174.GetIt $initGetIt(
   );
   gh.factory<_i802.GetCarByPlateUseCase>(
     () => _i802.GetCarByPlateUseCase(gh<_i206.CarRepository>()),
+  );
+  gh.factory<_i1003.HistoriaCubit>(
+    () => _i1003.HistoriaCubit(gh<_i802.GetCarByPlateUseCase>()),
   );
   gh.factory<_i864.NumberCheckerCubit>(
     () => _i864.NumberCheckerCubit(gh<_i802.GetCarByPlateUseCase>()),

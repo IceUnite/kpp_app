@@ -1,52 +1,52 @@
 import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/person.dart';
-import '../../domain/entities/report_entitie.dart';
 
 enum CheckerStep { initial, input, result, confirmed }
 
 abstract class NumberCheckerState extends Equatable {
   final Person? person;
-  final ReportEntity? report;
   final CheckerStep step;
 
-  const NumberCheckerState({this.person, this.report, required this.step});
+  const NumberCheckerState({this.person, required this.step});
 
   @override
-  List<Object?> get props => [person, report, step];
+  List<Object?> get props => [person, step];
 }
 
 class NumberCheckerInitial extends NumberCheckerState {
-  const NumberCheckerInitial({Person? person, ReportEntity? report, CheckerStep step = CheckerStep.initial})
-      : super(person: person, report: report, step: step);
+  const NumberCheckerInitial({super.person, super.step = CheckerStep.initial});
 }
 
-// остальные стейты тоже нужно обновить, чтобы принимать и передавать step
-
 class NumberCheckerLoading extends NumberCheckerState {
-  const NumberCheckerLoading({Person? person, ReportEntity? report, required CheckerStep step})
-      : super(person: person, report: report, step: step);
+  const NumberCheckerLoading({super.person, required super.step});
+}
+
+class NumberCheckerError extends NumberCheckerState {
+  final String message;
+
+  const NumberCheckerError({Person? person, required CheckerStep step, required this.message})
+    : super(person: person, step: step);
+
+  @override
+  List<Object?> get props => [person, step, message];
 }
 
 class NumberExists extends NumberCheckerState {
-  const NumberExists(Person person, {ReportEntity? report, required CheckerStep step})
-      : super(person: person, report: report, step: step);
+  const NumberExists(Person person, {required super.step}) : super(person: person);
 
   @override
-  List<Object?> get props => [person, report, step];
+  List<Object?> get props => [person, step];
 }
 
 class NumberNotExists extends NumberCheckerState {
-  const NumberNotExists({Person? person, ReportEntity? report, required CheckerStep step})
-      : super(person: person, report: report, step: step);
+  const NumberNotExists({super.person, required super.step});
 }
 
 class AdmitCarLoading extends NumberCheckerState {
-  const AdmitCarLoading({Person? person, ReportEntity? report, required CheckerStep step})
-      : super(person: person, report: report, step: step);
+  const AdmitCarLoading({super.person, required super.step});
 }
 
 class ExitCarLoading extends NumberCheckerState {
-  const ExitCarLoading({Person? person, ReportEntity? report, required CheckerStep step})
-      : super(person: person, report: report, step: step);
+  const ExitCarLoading({super.person, required super.step});
 }

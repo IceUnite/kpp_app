@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-
-import '../bloc/number_checker_cubit.dart';
-import '../bloc/number_checker_state.dart';
+import 'package:kpp_app/core/router/route_path.dart';
+import 'package:go_router/go_router.dart';
 
 class TopBarWithNavigation extends StatelessWidget {
-  final String selectedTab; // Параметр для выбранной вкладки
-  final Function(String) onTabChanged; // Функция для обработки изменения вкладки
+  final String title;
 
-  const TopBarWithNavigation({super.key, required this.selectedTab, required this.onTabChanged});
+  TopBarWithNavigation({super.key, required this.title});
 
   Color getIconColor(bool isActive) => isActive ? Colors.amber : Colors.white;
 
   @override
   Widget build(BuildContext context) {
+    final String selectedTab = GoRouter.of(context).routerDelegate.currentConfiguration.fullPath;
     return Container(
       height: 100,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -22,36 +19,35 @@ class TopBarWithNavigation extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          /// Домик
+          /// Левая кнопка: зависит от вкладки
           IconButton(
-            icon: Icon(Icons.home, color: getIconColor(selectedTab == 'home'), size: 32),
+            icon: Icon(
+              selectedTab == '/history' ? Icons.arrow_back : Icons.description,
+              color: getIconColor(true),
+              size: 32,
+            ),
             onPressed: () {
-              onTabChanged('home');
+              if (selectedTab == '/history') {
+                context.go(RoutePath.homePagePath); // 👈 назад на главную
+              } else {
+                context.go(RoutePath.historiaPagePath); // 👈 переход в историю
+              }
             },
           ),
 
-          /// Текст по центру
-          const Expanded(
+          /// Центр
+          Expanded(
             child: Center(
               child: Text(
-                'Регистрационный знак транспортного средства',
+                title,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
               ),
             ),
           ),
 
-          /// Документ
-          IconButton(
-            icon: Icon(Icons.description, color: getIconColor(selectedTab == 'history'), size: 32),
-            onPressed: () {
-              onTabChanged('history');
-              context.read<NumberCheckerCubit>().getReport(
-                startDate: DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 1))),
-              );
-              context.read<NumberCheckerCubit>().setStep(CheckerStep.initial);
-            },
-          ),
+          /// Заглушка справа (чтобы текст был по центру)
+          const SizedBox(width: 32),
         ],
       ),
     );

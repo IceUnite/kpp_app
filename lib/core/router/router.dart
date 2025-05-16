@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kpp_app/core/router/route_path.dart';
 
+import '../../feature/presentation/pages/historia_page.dart';
 import '../../feature/presentation/pages/number_checker_page.dart';
 
 final GoRouter router = GoRouter(
@@ -10,12 +11,13 @@ final GoRouter router = GoRouter(
       path: RoutePath.homePagePath,
       name: 'home',
       pageBuilder: (context, state) => _noTransitionPage(const NumberCheckerPage()),
+      routes: [],
     ),
-    // GoRoute(
-    //   path: RoutePath.historiaPagePath,
-    //   name: 'history',
-    //   pageBuilder: (context, state) => _noTransitionPage(const HistoriaPage()),
-    // ),
+    GoRoute(
+      path: RoutePath.historiaPagePath,
+      name: 'history',
+      pageBuilder: (context, state) => _noTransitionPage(const HistoriaPage()),
+    ),
   ],
 );
 
