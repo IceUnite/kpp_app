@@ -55,13 +55,19 @@ class _LeftSidebarState extends State<LeftSidebar> {
             initialDay: _day,
           ),
 
-          // const SizedBox(height: 16),
-          //
-          // // Две пустые кнопки
-          // const EmptyButton(),
-          // const SizedBox(height: 12),
-          // const EmptyButton(),
-        ],
+          const SizedBox(height: 12),
+
+          EmptyButton(
+            onTap: () => print('Нажали!'),
+            title: 'Добавить машину',
+            color: Color(0xFF00312C),
+          ),
+            const SizedBox(height: 12),
+          EmptyButton(
+            onTap: () => print('Нажали!'),
+            title: 'Удалить машину',
+            color: Color(0xFFF37B7B),
+          ),           ],
       ),
     );
   }
