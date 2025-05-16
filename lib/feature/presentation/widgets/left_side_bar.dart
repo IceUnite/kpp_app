@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Для форматирования даты и времени
 
+import 'add_car_dialog.dart';
+import 'deleate_car_dialog.dart';
 import 'time_date_section.dart'; // Обновленный виджет
 import 'logo_section.dart'; // Логотип
 import 'empty_button.dart'; // Пустая кнопка
@@ -49,25 +51,26 @@ class _LeftSidebarState extends State<LeftSidebar> {
           const SizedBox(height: 24),
 
           // Время и дата
-          TimeAndDateSection(
-            initialTime: _time,
-            initialDate: _date,
-            initialDay: _day,
-          ),
+          TimeAndDateSection(initialTime: _time, initialDate: _date, initialDay: _day),
 
           const SizedBox(height: 12),
 
           EmptyButton(
-            onTap: () => print('Нажали!'),
             title: 'Добавить машину',
+            onTap: () {
+              showDialog(context: context, builder: (_) => const AddCarDialog());
+            },
             color: Color(0xFF00312C),
           ),
-            const SizedBox(height: 12),
+          const SizedBox(height: 12),
           EmptyButton(
-            onTap: () => print('Нажали!'),
             title: 'Удалить машину',
-            color: Color(0xFFF37B7B),
-          ),           ],
+            onTap: () {
+              showDialog(context: context, builder: (_) => const DeleteCarDialog());
+            },
+            color: const Color(0xFFF37B7B),
+          ),
+        ],
       ),
     );
   }
