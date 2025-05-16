@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/number_checker_cubit.dart';
+import '../bloc/historia_state.dart';
+import '../bloc/historiya_cubit.dart';
 
 class StatisticsTable extends StatelessWidget {
   const StatisticsTable({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<NumberCheckerCubit>().state;
+    final state = context.watch<HistoriaCubit>().state;
 
-    if (state.report == null || state.report!.report.isEmpty) {
+    if (state is HistoriaLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state is HistoriaError) {
+      return Center(child: Text('Ошибка: ${state.message}'));
+    }
+
+    if (state is! HistoriaLoaded || state.report.report.isEmpty) {
       return const Center(child: Text('Нет данных'));
     }
 
-    final items = state.report!.report;
+    final items = state.report.report;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -35,7 +44,6 @@ class StatisticsTable extends StatelessWidget {
               border: Border(bottom: BorderSide(color: Colors.grey.shade500, width: 1.5)),
             ),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            // уменьшил вертикальный padding для выравнивания
             child: Row(
               children: const [
                 SizedBox(width: 12),
@@ -70,8 +78,8 @@ class StatisticsTable extends StatelessWidget {
 
                 if (rawDate.contains(' ')) {
                   final parts = rawDate.split(' ');
-                  onlyDate = parts[0];
-                  onlyTime = parts.length > 1 ? parts[1] : '';
+                  onlyDate = parts[1];   // В исходных данных формат "HH:mm:ss dd.MM.yyyy", дата во 2-й части
+                  onlyTime = parts[0];   // Время — в 1-й части
                 } else {
                   onlyDate = rawDate;
                 }
@@ -120,7 +128,7 @@ class VerticalDividerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 32, // увеличил высоту для совпадения с высотой строк
+      height: 32,
       width: 1,
       color: Colors.grey.shade400,
       margin: const EdgeInsets.symmetric(horizontal: 8),

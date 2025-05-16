@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../bloc/historiya_cubit.dart';
 import '../bloc/number_checker_cubit.dart';
 import '../widgets/logo_section.dart';
 import '../widgets/statistic.dart';
@@ -21,7 +22,7 @@ class _HistoriaPageState extends State<HistoriaPage> {
 
     final String startDate = DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 1)));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NumberCheckerCubit>().getReport(startDate: startDate);
+      context.read<HistoriaCubit>().getReport(startDate: startDate);
     });
   }
 

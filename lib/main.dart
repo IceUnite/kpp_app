@@ -6,9 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:window_size/window_size.dart';
+
 import 'core/internal/di/sl.dart';
 import 'core/router/router.dart';
 import 'feature/presentation/bloc/number_checker_cubit.dart';
+import 'feature/presentation/bloc/historiya_cubit.dart'; // импортируем второй Cubit
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,8 +33,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<NumberCheckerCubit>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<NumberCheckerCubit>(
+          create: (context) => getIt<NumberCheckerCubit>(),
+        ),
+        BlocProvider<HistoriaCubit>(
+          create: (context) => getIt<HistoriaCubit>(),
+        ),
+      ],
       child: MaterialApp.router(
         title: 'KPP App',
         theme: ThemeData(primarySwatch: Colors.blue),

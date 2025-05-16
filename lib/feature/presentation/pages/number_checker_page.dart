@@ -231,7 +231,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                   if (step == CheckerStep.input &&
                                       (state is NumberCheckerLoading ||
                                           state is NumberNotExists ||
-                                          state is NumberCheckerInitial)) ...[
+                                          state is NumberCheckerInitial )) ...[
                                     Expanded(
                                       child: ElevatedButton(
                                         style: _buttonStyle(const Color(0xFF00312C)),
@@ -292,7 +292,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                             } else {
                                               await context.read<NumberCheckerCubit>().exitCar(carId);
                                             }
-                                            _reset();
+                                            // _reset();
                                             context.read<NumberCheckerCubit>().setStep(CheckerStep.confirmed);
                                           },
                                           child: Text(
