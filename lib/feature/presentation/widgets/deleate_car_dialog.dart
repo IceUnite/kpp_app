@@ -70,7 +70,8 @@ class _DeleteCarDialogState extends State<DeleteCarDialog> {
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(
+                      SizedBox(
+                        width: 180,
                         child: EmptyButton(
                           title: 'Отмена',
                           onTap: isLoading ? null : () => Navigator.of(context).pop(),
@@ -78,7 +79,8 @@ class _DeleteCarDialogState extends State<DeleteCarDialog> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Expanded(
+                      SizedBox(
+                        width: 180,
                         child: isLoading
                             ? const Center(child: CircularProgressIndicator())
                             : EmptyButton(
