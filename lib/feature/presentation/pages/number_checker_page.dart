@@ -10,6 +10,7 @@ import '../widgets/check_result.dart';
 import '../widgets/left_side_bar.dart';
 import '../widgets/number_car_field.dart';
 import '../widgets/region_field.dart';
+import '../widgets/resetable_gif.dart';
 import '../widgets/statistic.dart';
 import '../widgets/top_bar_navigation.dart';
 
@@ -228,7 +229,9 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                   ),
                                   const SizedBox(width: 20),
                                   if (step == CheckerStep.input &&
-                                      (state is NumberCheckerLoading || state is NumberNotExists || state is NumberCheckerInitial)) ...[
+                                      (state is NumberCheckerLoading ||
+                                          state is NumberNotExists ||
+                                          state is NumberCheckerInitial)) ...[
                                     Expanded(
                                       child: ElevatedButton(
                                         style: _buttonStyle(const Color(0xFF00312C)),
@@ -329,9 +332,10 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                             children: [
                               const SizedBox(height: 32),
                               Center(
-                                child: Image.asset(
-                                  _isEntry ? PicturesPaths.inCome : PicturesPaths.outCome,
+                                child: ResettableGif(
+                                  assetPath: _isEntry ? PicturesPaths.inCome : PicturesPaths.outCome,
                                   height: 400,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
                             ],
@@ -342,9 +346,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                       },
                     )
                   else ...[
-                    Expanded(
-                      child: StatisticsTable(),
-                    ),
+                    Expanded(child: StatisticsTable()),
                   ],
                 ],
               ),

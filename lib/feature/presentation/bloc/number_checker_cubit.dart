@@ -40,16 +40,16 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
 
     try {
       final person = await getCarByPlateUseCase.execute(number);
-      final report = await getCarByPlateUseCase.getReport(
-        startDate: DateFormat('yyyy-MM-dd').format(
-          DateTime.now().subtract(const Duration(days: 1)),
-        ),
-      );
+      // final report = await getCarByPlateUseCase.getReport(
+      //   startDate: DateFormat('yyyy-MM-dd').format(
+      //     DateTime.now().subtract(const Duration(days: 1)),
+      //   ),
+      // );
 
       if (person != null) {
-        emit(NumberExists(person, report: report, step: state.step));
+        emit(NumberExists(person, report: state.report, step: state.step));
       } else {
-        emit(NumberNotExists(person: state.person, report: report, step: state.step));
+        emit(NumberNotExists(person: state.person, report: state.report, step: state.step));
       }
     } catch (_) {
       emit(NumberNotExists(person: state.person, report: state.report, step: state.step));
@@ -61,14 +61,14 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
 
     try {
       await getCarByPlateUseCase.admitCar(carId);
-      final report = await getCarByPlateUseCase.getReport(
-        startDate: DateFormat('yyyy-MM-dd').format(
-          DateTime.now().subtract(const Duration(days: 1)),
-        ),
-      );
+      // final report = await getCarByPlateUseCase.getReport(
+      //   startDate: DateFormat('yyyy-MM-dd').format(
+      //     DateTime.now().subtract(const Duration(days: 1)),
+      //   ),
+      // );
 
       // После успешной операции сбрасываем состояние в начальное, сохраняя отчет
-      emit(NumberCheckerInitial(report: report));
+      emit(NumberCheckerInitial(report: state.report));
     } catch (_) {
     }
   }
@@ -78,13 +78,13 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
 
     try {
       await getCarByPlateUseCase.exitCar(carId);
-      final report = await getCarByPlateUseCase.getReport(
-        startDate: DateFormat('yyyy-MM-dd').format(
-          DateTime.now().subtract(const Duration(days: 1)),
-        ),
-      );
+      // final report = await getCarByPlateUseCase.getReport(
+      //   startDate: DateFormat('yyyy-MM-dd').format(
+      //     DateTime.now().subtract(const Duration(days: 1)),
+      //   ),
+      // );
 
-      emit(NumberCheckerInitial(report: report));
+      emit(NumberCheckerInitial(report: state.report));
     } catch (_) {
     }
   }
