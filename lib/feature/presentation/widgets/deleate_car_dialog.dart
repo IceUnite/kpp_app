@@ -58,6 +58,7 @@ class _DeleteCarDialogState extends State<DeleteCarDialog> {
         final isLoading = state is ExitCarLoading; // Можно добавить отдельный Loading, если есть
 
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text('Удалить машину'),
           content: SingleChildScrollView(
             child: Form(

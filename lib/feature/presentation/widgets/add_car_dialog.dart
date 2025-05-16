@@ -77,6 +77,7 @@ class _AddCarDialogState extends State<AddCarDialog> {
         final isLoading = state is AdmitCarLoading;
 
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text('Добавить машину'),
           content: SingleChildScrollView(
             child: Form(
