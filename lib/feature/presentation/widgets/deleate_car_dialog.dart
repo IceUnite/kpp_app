@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/number_checker_cubit.dart';
+import '../bloc/number_checker_state.dart';
 import 'custom_textfield.dart';
 import 'empty_button.dart';
+
 
 class DeleteCarDialog extends StatefulWidget {
   const DeleteCarDialog({Key? key}) : super(key: key);
@@ -14,30 +18,6 @@ class _DeleteCarDialogState extends State<DeleteCarDialog> {
   final _plateNumberController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _isLoading = false;
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      // TODO: Реальный API-запрос на удаление машины
-      await Future.delayed(const Duration(seconds: 2)); // Заглушка
-
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Машина удалена'), backgroundColor: Color(0xFF00312C)));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
   @override
   void dispose() {
     _plateNumberController.dispose();
@@ -45,41 +25,76 @@ class _DeleteCarDialogState extends State<DeleteCarDialog> {
     super.dispose();
   }
 
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    final plateNumber = _plateNumberController.text.trim();
+    final password = _passwordController.text.trim();
+
+    final cubit = context.read<NumberCheckerCubit>();
+    cubit.deleteCar(plateNumber: plateNumber, password: password);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Удалить машину'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomTextField(controller: _plateNumberController, label: 'Номер машины', required: true),
-              CustomTextField(controller: _passwordController, label: 'Пароль', required: true, obscure: true),
-              const SizedBox(height: 16),
-              Row(
+    return BlocConsumer<NumberCheckerCubit, NumberCheckerState>(
+      listener: (context, state) {
+        if (state is NumberCheckerError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Ошибка: ${state.message}')),
+          );
+        } else if (state is NumberCheckerInitial) {
+          // После успешного удаления закрываем диалог и показываем сообщение
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Машина удалена'),
+              backgroundColor: Color(0xFF00312C),
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is ExitCarLoading; // Можно добавить отдельный Loading, если есть
+
+        return AlertDialog(
+          title: const Text('Удалить машину'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: EmptyButton(
-                      title: 'Отмена',
-                      onTap: _isLoading ? null : () => Navigator.of(context).pop(),
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child:
-                        _isLoading
+                  CustomTextField(controller: _plateNumberController, label: 'Номер машины', required: true),
+                  CustomTextField(controller: _passwordController, label: 'Пароль', required: true, obscure: true),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: EmptyButton(
+                          title: 'Отмена',
+                          onTap: isLoading ? null : () => Navigator.of(context).pop(),
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: isLoading
                             ? const Center(child: CircularProgressIndicator())
-                            : EmptyButton(title: 'Удалить машину', onTap: _submit, color: Colors.red.shade700),
+                            : EmptyButton(
+                          title: 'Удалить машину',
+                          onTap: _submit,
+                          color: const Color(0xFFF37B7B),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

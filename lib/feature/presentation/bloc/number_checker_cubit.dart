@@ -68,6 +68,49 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
     }
   }
 
+  Future<void> deleteCar({
+    required String plateNumber,
+    required String password,
+  }) async {
+    emit(ExitCarLoading(person: state.person, step: state.step));
+
+    try {
+      await getCarByPlateUseCase.deleteCarByPlate(plateNumber: plateNumber, password: password);
+      emit(NumberCheckerInitial(person: state.person, step: state.step));
+    } catch (e) {
+      emit(NumberCheckerError(person: state.person, step: state.step, message: e.toString()));
+    }
+  }
+
+  Future<void> addCar({
+    required String lastName,
+    required String firstName,
+    required String middleName,
+    required String plateNumber,
+    required String password,
+    String? brand,
+    String? passportData,
+    String? organization,
+  }) async {
+    emit(AdmitCarLoading(person: state.person, step: state.step));
+
+    try {
+      final message = await getCarByPlateUseCase.addCar(
+        lastName: lastName,
+        firstName: firstName,
+        middleName: middleName,
+        plateNumber: plateNumber,
+        password: password,
+        brand: brand,
+        passportData: passportData,
+        organization: organization,
+      );
+      emit(NumberCheckerInitial(person: state.person, step: state.step));
+    } catch (e) {
+      emit(NumberCheckerError(person: state.person, step: state.step, message: e.toString()));
+    }
+  }
+
   void emitInitial() {
     emit(const NumberCheckerInitial());
   }

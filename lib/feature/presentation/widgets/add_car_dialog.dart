@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/number_checker_cubit.dart';
 import 'custom_textfield.dart';
-import 'empty_button.dart'; // Импортируй свой кастомный виджет
+import 'empty_button.dart';
 
 class AddCarDialog extends StatefulWidget {
   const AddCarDialog({Key? key}) : super(key: key);
@@ -29,8 +31,18 @@ class _AddCarDialogState extends State<AddCarDialog> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: Реальный API-запрос
-      await Future.delayed(const Duration(seconds: 2));
+      final cubit = context.read<NumberCheckerCubit>();
+
+      await cubit.addCar(
+        lastName: _lastNameController.text.trim(),
+        firstName: _firstNameController.text.trim(),
+        middleName: _middleNameController.text.trim(),
+        plateNumber: _plateNumberController.text.trim(),
+        password: _passwordController.text.trim(),
+        brand: _brandController.text.trim().isEmpty ? null : _brandController.text.trim(),
+        passportData: _passportController.text.trim().isEmpty ? null : _passportController.text.trim(),
+        organization: _organizationController.text.trim().isEmpty ? null : _organizationController.text.trim(),
+      );
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -39,12 +51,27 @@ class _AddCarDialogState extends State<AddCarDialog> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: $e')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _middleNameController.dispose();
+    _plateNumberController.dispose();
+    _passwordController.dispose();
+    _brandController.dispose();
+    _passportController.dispose();
+    _organizationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -93,18 +120,5 @@ class _AddCarDialogState extends State<AddCarDialog> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _middleNameController.dispose();
-    _plateNumberController.dispose();
-    _passwordController.dispose();
-    _brandController.dispose();
-    _passportController.dispose();
-    _organizationController.dispose();
-    super.dispose();
   }
 }
