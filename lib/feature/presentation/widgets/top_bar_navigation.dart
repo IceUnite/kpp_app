@@ -3,7 +3,9 @@ import 'package:kpp_app/core/router/route_path.dart';
 import 'package:go_router/go_router.dart';
 
 class TopBarWithNavigation extends StatelessWidget {
-  TopBarWithNavigation({super.key});
+  final String title;
+
+  TopBarWithNavigation({super.key, required this.title});
 
   Color getIconColor(bool isActive) => isActive ? Colors.amber : Colors.white;
 
@@ -34,12 +36,12 @@ class TopBarWithNavigation extends StatelessWidget {
           ),
 
           /// Центр
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
-                'Регистрационный знак транспортного средства',
+                title,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
               ),
             ),
           ),

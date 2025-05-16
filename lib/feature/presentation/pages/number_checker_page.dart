@@ -152,7 +152,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  TopBarWithNavigation(),
+                  TopBarWithNavigation(title: 'Регистрационный знак транспортного средства'),
                   const SizedBox(height: 16),
                   if (_selectedTab == 'home')
                     BlocConsumer<NumberCheckerCubit, NumberCheckerState>(

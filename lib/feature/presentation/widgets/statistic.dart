@@ -22,13 +22,7 @@ class StatisticsTable extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade500, width: 1.5),
         color: Colors.grey.shade100,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(0, 3))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,14 +32,15 @@ class StatisticsTable extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.shade500, width: 1.5),
-              ),
+              border: Border(bottom: BorderSide(color: Colors.grey.shade500, width: 1.5)),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            // уменьшил вертикальный padding для выравнивания
             child: Row(
               children: const [
                 SizedBox(width: 12),
+                SizedBox(width: 30, child: Center(child: Text('№', style: TextStyle(fontWeight: FontWeight.bold)))),
+                VerticalDividerWidget(),
                 Expanded(child: Center(child: Text('Дата', style: TextStyle(fontWeight: FontWeight.bold)))),
                 VerticalDividerWidget(),
                 Expanded(child: Center(child: Text('Время', style: TextStyle(fontWeight: FontWeight.bold)))),
@@ -89,18 +84,14 @@ class StatisticsTable extends StatelessWidget {
                     color: bgColor,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.grey.shade300),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade200,
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
+                    boxShadow: [BoxShadow(color: Colors.grey.shade200, blurRadius: 2, offset: const Offset(0, 1))],
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
                     children: [
                       const SizedBox(width: 12),
+                      SizedBox(width: 30, child: Center(child: Text('${index + 1}'))),
+                      const VerticalDividerWidget(),
                       Expanded(child: Center(child: Text(onlyDate))),
                       const VerticalDividerWidget(),
                       Expanded(child: Center(child: Text(onlyTime))),
@@ -129,7 +120,7 @@ class VerticalDividerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 24,
+      height: 32, // увеличил высоту для совпадения с высотой строк
       width: 1,
       color: Colors.grey.shade400,
       margin: const EdgeInsets.symmetric(horizontal: 8),

@@ -40,7 +40,7 @@ class _HistoriaPageState extends State<HistoriaPage> {
                   children: [
                     const LogoSection(),
                     const SizedBox(width: 16),
-                    Expanded(child: TopBarWithNavigation()),
+                    Expanded(child: TopBarWithNavigation(title: 'История заездов и выездов',)),
                   ],
                 ),
               ),
