@@ -16,22 +16,36 @@ class StatisticsTable extends StatelessWidget {
 
     final items = state.report!.report;
 
-    return SizedBox(
-      height: 100,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade500, width: 1.5),
+        color: Colors.grey.shade100,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Заголовок таблицы
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
               color: Colors.grey.shade300,
-              border: Border.all(color: Colors.grey.shade500, width: 1),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              border: Border(
+                bottom: BorderSide(color: Colors.grey.shade500, width: 1.5),
+              ),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
             child: Row(
               children: const [
-                SizedBox(width: 20),
+                SizedBox(width: 12),
                 Expanded(child: Center(child: Text('Дата', style: TextStyle(fontWeight: FontWeight.bold)))),
                 VerticalDividerWidget(),
                 Expanded(child: Center(child: Text('Время', style: TextStyle(fontWeight: FontWeight.bold)))),
@@ -41,17 +55,17 @@ class StatisticsTable extends StatelessWidget {
                 Expanded(child: Center(child: Text('ФИО', style: TextStyle(fontWeight: FontWeight.bold)))),
                 VerticalDividerWidget(),
                 Expanded(child: Center(child: Text('Статус', style: TextStyle(fontWeight: FontWeight.bold)))),
-                SizedBox(width: 20),
+                SizedBox(width: 12),
               ],
             ),
           ),
 
+          // Список данных с разделителями
           Expanded(
-            // height: 400,
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final item = items[index];
 
@@ -68,34 +82,35 @@ class StatisticsTable extends StatelessWidget {
                 }
 
                 final isEven = index % 2 == 0;
-                final bgColor = isEven ? Colors.white : Colors.grey.shade200;
+                final bgColor = isEven ? Colors.white : Colors.grey.shade50;
 
                 return Container(
                   decoration: BoxDecoration(
                     color: bgColor,
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.shade300,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      )
+                        color: Colors.grey.shade200,
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
                     ],
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                   child: Row(
                     children: [
-                      const SizedBox(width: 20),
-                      Expanded(child: Center(child: Text(onlyTime))),
-                      const VerticalDividerWidget(),
+                      const SizedBox(width: 12),
                       Expanded(child: Center(child: Text(onlyDate))),
+                      const VerticalDividerWidget(),
+                      Expanded(child: Center(child: Text(onlyTime))),
                       const VerticalDividerWidget(),
                       Expanded(child: Center(child: Text(item.plateNumber ?? ''))),
                       const VerticalDividerWidget(),
                       Expanded(child: Center(child: Text(item.fio ?? ''))),
                       const VerticalDividerWidget(),
                       Expanded(child: Center(child: Text(item.status ?? ''))),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 12),
                     ],
                   ),
                 );
@@ -116,7 +131,7 @@ class VerticalDividerWidget extends StatelessWidget {
     return Container(
       height: 24,
       width: 1,
-      color: Colors.grey.shade500,
+      color: Colors.grey.shade400,
       margin: const EdgeInsets.symmetric(horizontal: 8),
     );
   }

@@ -148,11 +148,11 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
           const LeftSidebar(),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(top: 16.0, bottom: 16, right: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  TopBarWithNavigation(selectedTab: _selectedTab, onTabChanged: _changeTab),
+                  TopBarWithNavigation(),
                   const SizedBox(height: 16),
                   if (_selectedTab == 'home')
                     BlocConsumer<NumberCheckerCubit, NumberCheckerState>(
@@ -345,9 +345,9 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                         }
                       },
                     )
-                  else ...[
-                    Expanded(child: StatisticsTable()),
-                  ],
+                  // else ...[
+                  //   Expanded(child: StatisticsTable()),
+                  // ],
                 ],
               ),
             ),

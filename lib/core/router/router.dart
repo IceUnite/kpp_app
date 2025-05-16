@@ -11,13 +11,12 @@ final GoRouter router = GoRouter(
       path: RoutePath.homePagePath,
       name: 'home',
       pageBuilder: (context, state) => _noTransitionPage(const NumberCheckerPage()),
-      routes: [
-        GoRoute(
-          path: RoutePath.historiaPagePath,
-          name: 'history',
-          pageBuilder: (context, state) => _noTransitionPage(const HistoriaPage()),
-        ),
-      ],
+      routes: [],
+    ),
+    GoRoute(
+      path: RoutePath.historiaPagePath,
+      name: 'history',
+      pageBuilder: (context, state) => _noTransitionPage(const HistoriaPage()),
     ),
   ],
 );
