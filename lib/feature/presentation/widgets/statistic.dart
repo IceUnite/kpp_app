@@ -26,7 +26,7 @@ class StatisticsTable extends StatelessWidget {
     final items = state.report.report;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      // margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade500, width: 1.5),
