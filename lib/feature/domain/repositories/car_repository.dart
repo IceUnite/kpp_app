@@ -11,4 +11,16 @@ abstract class CarRepository {
 
   Future<ReportEntity?> getReport({required String startDate});
 
+  Future<void> deleteCarByPlate({required String plateNumber, required String password});
+
+  Future<String> addCar({
+    required String lastName,
+    required String firstName,
+    required String middleName,
+    required String plateNumber,
+    required String password,
+    String? brand,
+    String? passportData,
+    String? organization,
+  });
 }

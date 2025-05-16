@@ -47,6 +47,7 @@ class CarRemoteDataSource {
       throw Exception('Unexpected error: $e');
     }
   }
+
   Future<String> exitCar(int carId) async {
     try {
       final response = await _dio.post('/exit_car/$carId');
@@ -65,10 +66,7 @@ class CarRemoteDataSource {
 
   Future<ReportModel?> getReport({required String startDate}) async {
     try {
-      final response = await _dio.get(
-        '/generate_report',
-        queryParameters: {'start_date': startDate},
-      );
+      final response = await _dio.get('/generate_report', queryParameters: {'start_date': startDate});
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -82,7 +80,9 @@ class CarRemoteDataSource {
         if (reportData == null) return null;
 
         if (reportData is Map<String, dynamic>) {
-          return ReportModel.fromJson({'report': [reportData]});
+          return ReportModel.fromJson({
+            'report': [reportData],
+          });
         }
 
         if (reportData is List) {
@@ -100,10 +100,71 @@ class CarRemoteDataSource {
     }
   }
 
+  Future<void> deleteCarByPlate({
+    required String plateNumber,
+    required String password,
+  }) async {
+    try {
+      final response = await _dio.delete(
+        '/delete_car_by_plate/$plateNumber',
+        queryParameters: {'password': password},
+      );
 
+      if (response.statusCode == 200) {
+        // Можно вернуть response.data или просто void, если ответ не важен
+        return;
+      } else {
+        throw Exception('Failed to delete car, status code: ${response.statusCode}');
+      }
+    } on DioError catch (e) {
+      throw Exception('Dio error: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
+  Future<String> addCar({
+    required String lastName,
+    required String firstName,
+    required String middleName,
+    required String plateNumber,
+    required String password,
+    String? brand,
+    String? passportData,
+    String? organization,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/add_car',
+        queryParameters: {
+          'last_name': lastName,
+          'first_name': firstName,
+          'middle_name': middleName,
+          'plate_number': plateNumber,
+          'password': password,
+          if (brand != null) 'brand': brand,
+          if (passportData != null) 'passport_data': passportData,
+          if (organization != null) 'organization': organization,
+        },
+      );
 
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final message = data['message'] as String? ?? 'Car added successfully';
+        final carData = data['car'] as Map<String, dynamic>?;
 
+        if (carData == null) {
+          throw Exception('No car data in response');
+        }
 
-
+        return message;
+      } else {
+        throw Exception('Failed to add car, status code: ${response.statusCode}');
+      }
+    } on DioError catch (e) {
+      throw Exception('Dio error: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
 
 }

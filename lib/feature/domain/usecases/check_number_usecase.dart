@@ -44,5 +44,40 @@ class GetCarByPlateUseCase {
     return reportEntity;
   }
 
+  Future<void> deleteCarByPlate({
+    required String plateNumber,
+    required String password,
+  }) async {
+    try {
+      await _carRepository.deleteCarByPlate(plateNumber: plateNumber, password: password);
+    } catch (e) {
+      throw Exception('Error while deleting car: $e');
+    }
+  }
 
+  Future<String> addCar({
+    required String lastName,
+    required String firstName,
+    required String middleName,
+    required String plateNumber,
+    required String password,
+    String? brand,
+    String? passportData,
+    String? organization,
+  }) async {
+    try {
+      return await _carRepository.addCar(
+        lastName: lastName,
+        firstName: firstName,
+        middleName: middleName,
+        plateNumber: plateNumber,
+        password: password,
+        brand: brand,
+        passportData: passportData,
+        organization: organization,
+      );
+    } catch (e) {
+      throw Exception('Error while adding car: $e');
+    }
+  }
 }

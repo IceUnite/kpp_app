@@ -25,12 +25,16 @@ class NumberCheckerLoading extends NumberCheckerState {
 class NumberCheckerError extends NumberCheckerState {
   final String message;
 
-  const NumberCheckerError({Person? person, required CheckerStep step, required this.message})
-    : super(person: person, step: step);
+  const NumberCheckerError({
+    super.person,
+    super.step = CheckerStep.initial,
+    required this.message,
+  });
 
   @override
   List<Object?> get props => [person, step, message];
 }
+
 
 class NumberExists extends NumberCheckerState {
   const NumberExists(Person person, {required super.step}) : super(person: person);

@@ -18,7 +18,7 @@ class EmptyButton extends StatelessWidget {
       onPressed: onTap, // теперь допускает null
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        side: const BorderSide(color: Colors.white),
+        // side: const BorderSide(color: Colors.white),
         minimumSize: const Size(double.infinity, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
