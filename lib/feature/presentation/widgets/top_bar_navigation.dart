@@ -7,7 +7,6 @@ class TopBarWithNavigation extends StatelessWidget {
 
   TopBarWithNavigation({super.key, required this.title});
 
-  Color getIconColor(bool isActive) => isActive ? Colors.amber : Colors.white;
 
   @override
   Widget build(BuildContext context) {
@@ -20,22 +19,30 @@ class TopBarWithNavigation extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           /// Левая кнопка: зависит от вкладки
-          IconButton(
-            icon: Icon(
-              selectedTab == '/history' ? Icons.arrow_back : Icons.description,
-              color: getIconColor(true),
-              size: 32,
-            ),
-            onPressed: () {
-              if (selectedTab == '/history') {
-                context.go(RoutePath.homePagePath); // 👈 назад на главную
-              } else {
-                context.go(RoutePath.historiaPagePath); // 👈 переход в историю
-              }
-            },
-          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 40,
+                child: IconButton(
+                  icon: Icon(
+                    selectedTab == '/history' ? Icons.arrow_back : Icons.description,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                  onPressed: () {
+                    if (selectedTab == '/history') {
+                      context.go(RoutePath.homePagePath); // 👈 назад на главную
+                    } else {
+                      context.go(RoutePath.historiaPagePath); // 👈 переход в историю
+                    }
+                  },
+                ),
+              ),
+              selectedTab == '/history' ?  SizedBox():Text('История', style: TextStyle(color: Colors.white),) ,
 
-          /// Центр
+            ],
+          ),/// Центр
           Expanded(
             child: Center(
               child: Text(
