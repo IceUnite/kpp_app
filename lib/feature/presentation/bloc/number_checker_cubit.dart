@@ -51,7 +51,7 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
 
     try {
       await getCarByPlateUseCase.admitCar(carId);
-      emit(NumberCheckerInitial(person: state.person, step: state.step));
+      // emit(NumberCheckerInitial(person: state.person, step: state.step));
     } catch (e) {
       emit(NumberCheckerError(person: state.person, step: state.step, message: e.toString()));
     }
@@ -62,7 +62,7 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
 
     try {
       await getCarByPlateUseCase.exitCar(carId);
-      emit(NumberCheckerInitial(person: state.person, step: state.step));
+      // emit(NumberCheckerInitial(person: state.person, step: state.step));
     } catch (e) {
       emit(NumberCheckerError(person: state.person, step: state.step, message: e.toString()));
     }

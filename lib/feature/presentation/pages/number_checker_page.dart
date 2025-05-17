@@ -228,10 +228,15 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                     child: RegionField(controller: _regionController, focusNode: _regionFocus),
                                   ),
                                   const SizedBox(width: 20),
-                                  if (step == CheckerStep.input &&
-                                      (state is NumberCheckerLoading ||
-                                          state is NumberNotExists ||
-                                          state is NumberCheckerInitial )) ...[
+                                  if (step == CheckerStep.input
+                                      &&
+                                      (state is !NumberExists
+                                          // ||
+                                          // state is NumberNotExists ||
+                                          // state is NumberCheckerInitial ||
+                                          // state is NumberCheckerError
+                                      )
+                                  ) ...[
                                     Expanded(
                                       child: ElevatedButton(
                                         style: _buttonStyle(const Color(0xFF00312C)),
@@ -287,13 +292,13 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                           style: _buttonStyle(const Color(0xFF00312C)),
                                           onPressed: () async {
                                             final carId = state.person?.id ?? 0;
+                                            context.read<NumberCheckerCubit>().setStep(CheckerStep.confirmed);
                                             if (_isEntry) {
                                               await context.read<NumberCheckerCubit>().admitCar(carId);
                                             } else {
                                               await context.read<NumberCheckerCubit>().exitCar(carId);
                                             }
                                             // _reset();
-                                            context.read<NumberCheckerCubit>().setStep(CheckerStep.confirmed);
                                           },
                                           child: Text(
                                             _isEntry ? 'Подтвердить въезд' : 'Подтвердить выезд',
@@ -344,7 +349,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                           return const SizedBox.shrink();
                         }
                       },
-                    )
+                    ),
                   // else ...[
                   //   Expanded(child: StatisticsTable()),
                   // ],
