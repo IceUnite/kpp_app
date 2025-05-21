@@ -6,7 +6,7 @@
 📸 Скриншот интерфейса
 
 <p align="center">
-  <img src="assets/screenshots/screenshot.png" alt="Скриншот приложения" width="600"/>
+  <img src="assets/screenshots/kpp_video.gif" alt="Скриншот приложения" width="600"/>
 </p>
 🧩 Основной функционал
 
