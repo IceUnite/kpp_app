@@ -7,6 +7,9 @@ class Person {
   final String? status;
   final DateTime? timeIn;
   final DateTime? timeOut;
+  final String? brand;
+  final String? passportData;
+  final String? organization;
 
   Person({
     this.id,
@@ -17,5 +20,8 @@ class Person {
     this.status,
     this.timeIn,
     this.timeOut,
+    this.brand,
+    this.passportData,
+    this.organization,
   });
 }

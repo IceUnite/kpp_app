@@ -26,8 +26,8 @@ class CustomTextField extends StatelessWidget {
         obscureText: obscure,
         inputFormatters:
             isPlateNumberField
-                ? [FilteringTextInputFormatter.allow(RegExp(r'[а-яА-Я0-9]')), UpperCaseTextFormatter()]
-                : [],
+                ? [FilteringTextInputFormatter.allow(RegExp(r'[а-яА-Я0-9]')), UpperCaseTextFormatter(), LengthLimitingTextInputFormatter(9)]
+                : [ LengthLimitingTextInputFormatter(30)],
         textCapitalization: isPlateNumberField ? TextCapitalization.characters : TextCapitalization.none,
         validator: (value) {
           if (required && (value == null || value.isEmpty)) {
