@@ -11,6 +11,9 @@ class PersonModel extends Person {
     String? status,
     DateTime? timeIn,
     DateTime? timeOut,
+    String? brand,
+    String? passportData,
+    String? organization,
   }) : super(
     id: id,
     surname: surname,
@@ -20,8 +23,12 @@ class PersonModel extends Person {
     status: status,
     timeIn: timeIn,
     timeOut: timeOut,
+    brand: brand,
+    passportData: passportData,
+    organization: organization,
   );
 
+  /// Создание модели из Map (например, из JSON-ответа)
   factory PersonModel.fromMap(Map<String, dynamic> map) {
     return PersonModel(
       id: map['id'],
@@ -30,18 +37,22 @@ class PersonModel extends Person {
       lastname: map['middle_name'],
       number: map['plate_number'],
       status: map['status'],
+      brand: map['brand'],
+      passportData: map['passport_data'],
+      organization: map['organization'],
       timeIn: map['time_in'] != null ? DateTime.parse(map['time_in']) : null,
       timeOut: map['time_out'] != null ? DateTime.parse(map['time_out']) : null,
     );
   }
 
-  // Метод для преобразования из JSON (строка или карта)
+  /// Создание модели из JSON-строки
   factory PersonModel.fromJson(String json) {
     final map = jsonDecode(json);
     return PersonModel.fromMap(map);
   }
 
-  // Метод для преобразования объекта в JSON
+  /// Преобразование модели в JSON (например, для отправки на сервер)
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -50,22 +61,29 @@ class PersonModel extends Person {
       'middle_name': lastname,
       'plate_number': number,
       'status': status,
+      'brand': brand,
+      'passport_data': passportData,
+      'organization': organization,
       'time_in': timeIn?.toIso8601String(),
       'time_out': timeOut?.toIso8601String(),
     };
   }
 
-  // Преобразование модели в сущность
+  /// Преобразование модели обратно в сущность (если нужно)
+  @override
   Person toEntity() {
     return Person(
-      id: id ?? 0, // Используем дефолтные значения, если они null
-      surname: surname ?? '',
-      name: name ?? '',
-      lastname: lastname ?? '',
-      number: number ?? '',
-      status: status ?? '',
+      id: id,
+      surname: surname,
+      name: name,
+      lastname: lastname,
+      number: number,
+      status: status,
       timeIn: timeIn,
       timeOut: timeOut,
+      brand: brand,
+      passportData: passportData,
+      organization: organization,
     );
   }
 }

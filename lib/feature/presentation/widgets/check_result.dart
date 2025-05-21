@@ -17,24 +17,54 @@ class CheckResult extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color:Color(0xFF00312C).withOpacity(0.15),
+          color: Color(0xFF00312C).withOpacity(0.15),
           border: Border.all(color: Color(0xFF00312C), width: 2),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('✅ Пользователь найден!',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00312C))),
+            Text(
+              '✅ Пользователь найден!',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00312C)),
+            ),
             const SizedBox(height: 8),
-            Text('Фамилия: ${person?.surname}',style:  TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C))),
-            Text('Имя: ${person?.name}',style:  TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C))),
-            Text('Отчество: ${person?.lastname}',style:  TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C))),
-            Text('Номер: ${person?.number}',style:  TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C))),
-            // Text('Номер: ${person?.number}',style:  TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C))),
-            // Text('Номер: ${person?.number}',style:  TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C))),
-            // Text('Номер: ${person?.number}',style:  TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C))),
-            // Text('Номер: ${person?.number}',style:  TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C))),
+            person?.surname != null
+                ? Text(
+                  'Фамилия: ${person!.surname}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C)),
+                )
+                : SizedBox.shrink(),
+            person?.name != null
+                ? Text(
+                  'Имя: ${person!.name}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C)),
+                )
+                : SizedBox.shrink(),
+            person?.lastname != null
+                ? Text(
+                  'Отчество: ${person!.lastname}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C)),
+                )
+                : SizedBox.shrink(),
+            person?.passportData != null
+                ? Text(
+                  'Паспортные данные: ${person!.passportData}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C)),
+                )
+                : SizedBox.shrink(),
+            person?.brand != null
+                ? Text(
+                  'Марка автомобиля: ${person!.brand}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C)),
+                )
+                : SizedBox.shrink(),
+            person?.organization != null
+                ? Text(
+                  'Организация: ${person!.organization}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Color(0xFF00312C)),
+                )
+                : SizedBox.shrink(),
           ],
         ),
       );
@@ -58,5 +88,3 @@ class CheckResult extends StatelessWidget {
     return const SizedBox.shrink();
   }
 }
-
-
