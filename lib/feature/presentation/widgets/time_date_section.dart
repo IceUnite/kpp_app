@@ -67,7 +67,7 @@ class _TimeAndDateSectionState extends State<TimeAndDateSection> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 180,
+      height: 170,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.transparent,

@@ -27,6 +27,7 @@ class RegionField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: 'Регион',
           labelStyle: const TextStyle(fontSize: 18),
+          floatingLabelStyle: const TextStyle(fontSize: 18, color: Colors.black),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: const BorderSide(color: Colors.black, width: 2),

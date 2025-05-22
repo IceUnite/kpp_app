@@ -12,24 +12,41 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
 
   void setStep(CheckerStep step) {
     final currentPerson = state.person;
+    print('1111 $step');
 
     if (state is NumberCheckerInitial) {
       emit(NumberCheckerInitial(person: currentPerson, step: step));
+      print('22222 $step');
+
     } else if (state is NumberCheckerLoading) {
       emit(NumberCheckerLoading(person: currentPerson, step: step));
+      print('22222 $step');
+
     } else if (state is NumberExists) {
       emit(NumberExists(currentPerson!, step: step));
+      print('22222 $step');
+
     } else if (state is NumberNotExists) {
       emit(NumberNotExists(person: currentPerson, step: step));
+      print('22222 $step');
+
     } else if (state is AdmitCarLoading) {
       emit(AdmitCarLoading(person: currentPerson, step: step));
+      print('22222 $step');
+
     } else if (state is ExitCarLoading) {
       emit(ExitCarLoading(person: currentPerson, step: step));
+      print('22222 $step');
+
     } else if (state is NumberCheckerError) {
       emit(NumberCheckerError(person: currentPerson, step: step, message: (state as NumberCheckerError).message));
+      print('22222 $step');
+
     } else {
-      // fallback
+
       emit(NumberCheckerInitial(person: currentPerson, step: step));
+      print('22222 $step');
+
     }
   }
 
@@ -40,6 +57,7 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
       final person = await getCarByPlateUseCase.execute(number);
       if (person != null) {
         emit(NumberExists(person, step: state.step));
+        setStep(CheckerStep.result);
       }
     } catch (e) {
       emit(NumberNotExists(step: state.step));

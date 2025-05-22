@@ -7,6 +7,7 @@ import '../../../core/resources/pictures_path.dart';
 import '../bloc/number_checker_cubit.dart';
 import '../bloc/number_checker_state.dart';
 import '../widgets/check_result.dart';
+import '../widgets/custom_textfield.dart';
 import '../widgets/left_side_bar.dart';
 import '../widgets/number_car_field.dart';
 import '../widgets/region_field.dart';
@@ -27,6 +28,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
   List<TextEditingController> _controllers = [];
   List<FocusNode> _focusNodes = [];
   final _regionController = TextEditingController();
+  final _typeLuggageController = TextEditingController();
   final _regionFocus = FocusNode();
   Timer? _confirmTimer;
 
@@ -228,15 +230,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                     child: RegionField(controller: _regionController, focusNode: _regionFocus),
                                   ),
                                   const SizedBox(width: 20),
-                                  if (step == CheckerStep.input
-                                      &&
-                                      (state is !NumberExists
-                                          // ||
-                                          // state is NumberNotExists ||
-                                          // state is NumberCheckerInitial ||
-                                          // state is NumberCheckerError
-                                      )
-                                  ) ...[
+                                  if (step == CheckerStep.input && (state is! NumberExists)) ...[
                                     Expanded(
                                       child: ElevatedButton(
                                         style: _buttonStyle(const Color(0xFF00312C)),
@@ -276,6 +270,18 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                             color: Colors.white,
                                           ),
                                         ),
+                                      ),
+                                    ),
+                                  ],
+                                  if (step == CheckerStep.result) ...[
+                                    Expanded(
+                                      child: CustomTextField(
+                                        verticalPadding: 36,
+                                        horisontalPadding: 16,
+                                        borderRadius: 20,
+                                        label: 'Тип ввозимого груза',
+                                        controller: _typeLuggageController,
+                                          isAlert: false,
                                       ),
                                     ),
                                   ],
