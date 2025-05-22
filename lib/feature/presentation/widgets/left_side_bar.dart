@@ -48,14 +48,15 @@ class _LeftSidebarState extends State<LeftSidebar> {
           // Логотип и заголовок
           const LogoSection(),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Время и дата
           TimeAndDateSection(initialTime: _time, initialDate: _date, initialDay: _day),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           EmptyButton(
+            isMain: true,
             title: 'Добавить машину',
             onTap: () {
               showDialog(context: context, builder: (_) => const AddCarDialog());
@@ -64,6 +65,7 @@ class _LeftSidebarState extends State<LeftSidebar> {
           ),
           const SizedBox(height: 12),
           EmptyButton(
+            isMain: true,
             title: 'Удалить машину',
             onTap: () {
               showDialog(context: context, builder: (_) => const DeleteCarDialog());

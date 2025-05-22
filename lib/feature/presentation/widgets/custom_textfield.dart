@@ -6,13 +6,21 @@ class CustomTextField extends StatelessWidget {
   final String label;
   final bool required;
   final bool obscure;
+  double verticalPadding;
+  double horisontalPadding;
+  double borderRadius;
+  bool isAlert;
 
-  const CustomTextField({
+  CustomTextField({
     Key? key,
     required this.controller,
     required this.label,
     this.required = false,
     this.obscure = false,
+    this.verticalPadding = 12,
+    this.horisontalPadding = 16,
+    this.borderRadius = 8,
+    this.isAlert = true,
   }) : super(key: key);
 
   bool get isPlateNumberField => label.toLowerCase().contains('номер');
@@ -20,14 +28,23 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: isAlert ? const EdgeInsets.symmetric(vertical: 8) : const EdgeInsets.symmetric(vertical: 0),
       child: TextFormField(
+        style: this.isAlert ? const TextStyle(fontSize: 24) : const TextStyle(fontSize: 30),
         controller: controller,
-        obscureText: obscure,
-        inputFormatters:
-            isPlateNumberField
-                ? [FilteringTextInputFormatter.allow(RegExp(r'[а-яА-Я0-9]')), UpperCaseTextFormatter(), LengthLimitingTextInputFormatter(9)]
-                : [ LengthLimitingTextInputFormatter(30)],
+        obscureText: isAlert ? true : obscure,
+        keyboardType: TextInputType.multiline,
+        minLines: 1,
+        maxLines: isAlert ? 1 : 3, // Автоматически растёт по мере ввода
+        inputFormatters: isAlert
+            ? isPlateNumberField
+            ? [
+          FilteringTextInputFormatter.allow(RegExp(r'[а-яА-Я0-9]')),
+          UpperCaseTextFormatter(),
+          LengthLimitingTextInputFormatter(9),
+        ]
+            : [LengthLimitingTextInputFormatter(1000)] // Увеличь лимит, если нужно
+            : null,
         textCapitalization: isPlateNumberField ? TextCapitalization.characters : TextCapitalization.none,
         validator: (value) {
           if (required && (value == null || value.isEmpty)) {
@@ -45,8 +62,8 @@ class CustomTextField extends StatelessWidget {
 
           return null;
         },
-
         decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: horisontalPadding, vertical: verticalPadding),
           label: Text.rich(
             TextSpan(
               text: label,
@@ -54,32 +71,32 @@ class CustomTextField extends StatelessWidget {
               children: [if (required) const TextSpan(text: ' *', style: TextStyle(color: Colors.red))],
             ),
           ),
-          labelStyle: const TextStyle(color: Colors.black87),
+          labelStyle: isAlert ? const TextStyle(color: Colors.black87) : const TextStyle(fontSize: 18),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(borderRadius),
             borderSide: const BorderSide(color: Colors.black, width: 2),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(borderRadius),
             borderSide: const BorderSide(color: Colors.black, width: 2),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(borderRadius),
             borderSide: const BorderSide(color: Colors.black, width: 2),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(borderRadius),
             borderSide: const BorderSide(color: Colors.red, width: 2),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(borderRadius),
             borderSide: const BorderSide(color: Colors.red, width: 2),
           ),
         ),
       ),
+
     );
   }
 }
