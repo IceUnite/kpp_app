@@ -25,6 +25,9 @@ dependencies:
   bot_toast: ^4.0.3
   flutter_svg: ^2.1.0
 
+  go_router: any
+  flutter_localizations: any
+  window_size: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -36,10 +39,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
   injectable_generator: ^2.4.1
   built_value_generator: ^8.4.3
-  flutter_launcher_icons: ^0.13.1
-  go_router: ^13.0.0
-  window_size: ^0.1.0
-  mask_text_input_formatter: ^2.4.0
+  flutter_launcher_icons: ^0.13.1mask_text_input_formatter: ^2.4.0
 
 
 

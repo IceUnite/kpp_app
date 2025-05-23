@@ -22,7 +22,7 @@ class CarRemoteDataSource {
       } else {
         throw Exception('Failed to load car data');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       // Обработка ошибок Dio
       throw Exception('Dio error: ${e.message}');
     } catch (e) {
@@ -41,7 +41,7 @@ class CarRemoteDataSource {
       } else {
         throw Exception('Failed to admit car');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw Exception('Dio error: ${e.message}');
     } catch (e) {
       throw Exception('Unexpected error: $e');
@@ -57,7 +57,7 @@ class CarRemoteDataSource {
       } else {
         throw Exception('Failed to exit car');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw Exception('Dio error: ${e.message}');
     } catch (e) {
       throw Exception('Unexpected error: $e');
@@ -93,7 +93,7 @@ class CarRemoteDataSource {
       } else {
         throw Exception('Failed to fetch report, status code: ${response.statusCode}');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw Exception('Dio error: ${e.message}');
     } catch (e) {
       throw Exception('Unexpected error: $e');
@@ -116,7 +116,7 @@ class CarRemoteDataSource {
       } else {
         throw Exception('Failed to delete car, status code: ${response.statusCode}');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw Exception('Dio error: ${e.message}');
     } catch (e) {
       throw Exception('Unexpected error: $e');
@@ -160,7 +160,7 @@ class CarRemoteDataSource {
       } else {
         throw Exception('Failed to add car, status code: ${response.statusCode}');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw Exception('Dio error: ${e.message}');
     } catch (e) {
       throw Exception('Unexpected error: $e');

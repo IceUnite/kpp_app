@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../bloc/number_checker_cubit.dart';
 import '../bloc/number_checker_state.dart';
 
 class CheckResult extends StatelessWidget {

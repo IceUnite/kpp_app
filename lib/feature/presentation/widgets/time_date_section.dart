@@ -7,11 +7,11 @@ class TimeAndDateSection extends StatefulWidget {
   final String initialDay;
 
   const TimeAndDateSection({
-    Key? key,
+    super.key,
     required this.initialTime,
     required this.initialDate,
     required this.initialDay,
-  }) : super(key: key);
+  });
 
   @override
   _TimeAndDateSectionState createState() => _TimeAndDateSectionState();

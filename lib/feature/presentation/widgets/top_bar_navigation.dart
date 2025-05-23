@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 class TopBarWithNavigation extends StatelessWidget {
   final String title;
 
-  TopBarWithNavigation({super.key, required this.title});
+  const TopBarWithNavigation({super.key, required this.title});
 
 
   @override

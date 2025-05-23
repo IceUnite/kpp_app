@@ -14,7 +14,7 @@ import '../widgets/resetable_gif.dart';
 import '../widgets/top_bar_navigation.dart';
 
 class NumberCheckerPage extends StatefulWidget {
-  const NumberCheckerPage({Key? key}) : super(key: key);
+  const NumberCheckerPage({super.key});
 
   @override
   State<NumberCheckerPage> createState() => _NumberCheckerPageState();

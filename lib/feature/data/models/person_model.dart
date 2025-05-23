@@ -3,30 +3,18 @@ import '../../domain/entities/person.dart';
 
 class PersonModel extends Person {
   PersonModel({
-    int? id,
-    String? surname,
-    String? name,
-    String? lastname,
-    String? number,
-    String? status,
-    DateTime? timeIn,
-    DateTime? timeOut,
-    String? brand,
-    String? passportData,
-    String? organization,
-  }) : super(
-    id: id,
-    surname: surname,
-    name: name,
-    lastname: lastname,
-    number: number,
-    status: status,
-    timeIn: timeIn,
-    timeOut: timeOut,
-    brand: brand,
-    passportData: passportData,
-    organization: organization,
-  );
+    super.id,
+    super.surname,
+    super.name,
+    super.lastname,
+    super.number,
+    super.status,
+    super.timeIn,
+    super.timeOut,
+    super.brand,
+    super.passportData,
+    super.organization,
+  });
 
   /// Создание модели из Map (например, из JSON-ответа)
   factory PersonModel.fromMap(Map<String, dynamic> map) {
