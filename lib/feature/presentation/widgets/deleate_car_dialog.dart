@@ -7,7 +7,7 @@ import 'empty_button.dart';
 
 
 class DeleteCarDialog extends StatefulWidget {
-  const DeleteCarDialog({Key? key}) : super(key: key);
+  const DeleteCarDialog({super.key});
 
   @override
   State<DeleteCarDialog> createState() => _DeleteCarDialogState();

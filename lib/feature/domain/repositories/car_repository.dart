@@ -1,5 +1,4 @@
 import '../../data/models/person_model.dart';
-import '../../data/models/report_model.dart';
 import '../entities/report_entitie.dart';
 
 abstract class CarRepository {

@@ -12,7 +12,7 @@ class CustomTextField extends StatelessWidget {
   bool isAlert;
 
   CustomTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     this.required = false,
@@ -21,7 +21,7 @@ class CustomTextField extends StatelessWidget {
     this.horisontalPadding = 16,
     this.borderRadius = 8,
     this.isAlert = true,
-  }) : super(key: key);
+  });
 
   bool get isPlateNumberField => label.toLowerCase().contains('номер');
 
@@ -30,7 +30,7 @@ class CustomTextField extends StatelessWidget {
     return Padding(
       padding: isAlert ? const EdgeInsets.symmetric(vertical: 8) : const EdgeInsets.symmetric(vertical: 0),
       child: TextFormField(
-        style: this.isAlert ? const TextStyle(fontSize: 24) : const TextStyle(fontSize: 30),
+        style: isAlert ? const TextStyle(fontSize: 24) : const TextStyle(fontSize: 30),
         controller: controller,
         obscureText: isAlert ? true : obscure,
         keyboardType: TextInputType.multiline,

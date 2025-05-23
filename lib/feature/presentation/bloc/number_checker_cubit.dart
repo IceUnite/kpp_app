@@ -55,11 +55,9 @@ class NumberCheckerCubit extends Cubit<NumberCheckerState> {
 
     try {
       final person = await getCarByPlateUseCase.execute(number);
-      if (person != null) {
-        emit(NumberExists(person, step: state.step));
-        setStep(CheckerStep.result);
-      }
-    } catch (e) {
+      emit(NumberExists(person, step: state.step));
+      setStep(CheckerStep.result);
+        } catch (e) {
       emit(NumberNotExists(step: state.step));
     }
   }

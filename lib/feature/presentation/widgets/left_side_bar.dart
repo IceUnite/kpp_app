@@ -8,7 +8,7 @@ import 'logo_section.dart'; // Логотип
 import 'empty_button.dart'; // Пустая кнопка
 
 class LeftSidebar extends StatefulWidget {
-  const LeftSidebar({Key? key}) : super(key: key);
+  const LeftSidebar({super.key});
 
   @override
   _LeftSidebarState createState() => _LeftSidebarState();

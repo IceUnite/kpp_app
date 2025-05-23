@@ -5,7 +5,7 @@ import '../bloc/historia_state.dart';
 import '../bloc/historiya_cubit.dart';
 
 class StatisticsTable extends StatelessWidget {
-  const StatisticsTable({Key? key}) : super(key: key);
+  const StatisticsTable({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +123,7 @@ class StatisticsTable extends StatelessWidget {
 }
 
 class VerticalDividerWidget extends StatelessWidget {
-  const VerticalDividerWidget({Key? key}) : super(key: key);
+  const VerticalDividerWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

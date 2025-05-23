@@ -6,7 +6,7 @@ import 'custom_textfield.dart';
 import 'empty_button.dart';
 
 class AddCarDialog extends StatefulWidget {
-  const AddCarDialog({Key? key}) : super(key: key);
+  const AddCarDialog({super.key});
 
   @override
   State<AddCarDialog> createState() => _AddCarDialogState();

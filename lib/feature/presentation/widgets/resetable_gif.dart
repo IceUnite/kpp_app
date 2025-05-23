@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -9,12 +8,12 @@ class ResettableGif extends StatefulWidget {
   final BoxFit? fit;
 
   const ResettableGif({
-    Key? key,
+    super.key,
     required this.assetPath,
     this.height,
     this.width,
     this.fit,
-  }) : super(key: key);
+  });
 
   @override
   State<ResettableGif> createState() => _ResettableGifState();

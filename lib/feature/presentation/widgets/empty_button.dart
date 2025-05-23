@@ -6,8 +6,7 @@ class EmptyButton extends StatelessWidget {
   final Color color;
   bool isMain;
 
-  EmptyButton({Key? key, required this.title, required this.onTap, required this.color, this.isMain = false})
-    : super(key: key);
+  EmptyButton({super.key, required this.title, required this.onTap, required this.color, this.isMain = false});
 
   @override
   Widget build(BuildContext context) {

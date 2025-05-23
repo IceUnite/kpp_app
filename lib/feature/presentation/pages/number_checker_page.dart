@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/resources/pictures_path.dart';
 import '../bloc/number_checker_cubit.dart';
@@ -12,11 +11,10 @@ import '../widgets/left_side_bar.dart';
 import '../widgets/number_car_field.dart';
 import '../widgets/region_field.dart';
 import '../widgets/resetable_gif.dart';
-import '../widgets/statistic.dart';
 import '../widgets/top_bar_navigation.dart';
 
 class NumberCheckerPage extends StatefulWidget {
-  const NumberCheckerPage({Key? key}) : super(key: key);
+  const NumberCheckerPage({super.key});
 
   @override
   State<NumberCheckerPage> createState() => _NumberCheckerPageState();
@@ -38,6 +36,9 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
   void initState() {
     super.initState();
     _initializeFields();
+    _typeLuggageController.addListener(() {
+      setState(() {});
+    });
   }
 
   void _initializeFields() {
@@ -62,6 +63,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
     _disposeFields();
     _regionController.dispose();
     _regionFocus.dispose();
+    _typeLuggageController.dispose();
     super.dispose();
   }
 
@@ -281,7 +283,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                         borderRadius: 20,
                                         label: 'Тип ввозимого груза',
                                         controller: _typeLuggageController,
-                                          isAlert: false,
+                                        isAlert: false,
                                       ),
                                     ),
                                   ],
@@ -295,16 +297,21 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                     children: [
                                       Expanded(
                                         child: ElevatedButton(
-                                          style: _buttonStyle(const Color(0xFF00312C)),
+                                          style: _buttonStyle(
+                                            _typeLuggageController.text.isNotEmpty
+                                                ? const Color(0xFF00312C)
+                                                : const Color(0xFF00312C).withOpacity(0.5),
+                                          ),
                                           onPressed: () async {
-                                            final carId = state.person?.id ?? 0;
-                                            context.read<NumberCheckerCubit>().setStep(CheckerStep.confirmed);
-                                            if (_isEntry) {
-                                              await context.read<NumberCheckerCubit>().admitCar(carId);
-                                            } else {
-                                              await context.read<NumberCheckerCubit>().exitCar(carId);
+                                            if (_typeLuggageController.text.isNotEmpty) {
+                                              final carId = state.person?.id ?? 0;
+                                              context.read<NumberCheckerCubit>().setStep(CheckerStep.confirmed);
+                                              if (_isEntry) {
+                                                await context.read<NumberCheckerCubit>().admitCar(carId);
+                                              } else {
+                                                await context.read<NumberCheckerCubit>().exitCar(carId);
+                                              }
                                             }
-                                            // _reset();
                                           },
                                           child: Text(
                                             _isEntry ? 'Подтвердить въезд' : 'Подтвердить выезд',
@@ -316,6 +323,7 @@ class _NumberCheckerPageState extends State<NumberCheckerPage> {
                                           ),
                                         ),
                                       ),
+
                                       const SizedBox(width: 20),
                                       Expanded(
                                         child: ElevatedButton(

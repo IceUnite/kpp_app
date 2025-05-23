@@ -3,7 +3,6 @@ import '../../domain/entities/report_entitie.dart';
 import '../../domain/repositories/car_repository.dart';
 import '../datasource/remote_datasource.dart';
 import '../models/person_model.dart';
-import '../models/report_model.dart';
 
 @LazySingleton(as: CarRepository)
 class CarRepositoryImpl implements CarRepository {
@@ -37,6 +36,7 @@ class CarRepositoryImpl implements CarRepository {
     await _carRemoteDataSource.deleteCarByPlate(plateNumber: plateNumber, password: password);
   }
 
+  @override
   Future<String> addCar({
     required String lastName,
     required String firstName,
