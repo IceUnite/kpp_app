@@ -7,6 +7,7 @@
 📸 Интерфейс
 
 
+
 <p align="center">
   <img src="assets/screenshots/kpp_video.gif" alt="Скриншот приложения" width="600"/>
 </p>
